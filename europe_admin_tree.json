@@ -1,0 +1,935 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2026-02-01",
+    "description": "Complete European administrative hierarchy",
+    "subdivisionLevels": {
+      "germany": "Country → 16 Bundesländer → Gemeinden (API)",
+      "france": "Country → 95 Départements → Communes (API)",
+      "italy": "Country → 20 Regioni → Province/Comuni (API)",
+      "spain": "Country → 17 Comunidades Autónomas → Provincias (API)",
+      "poland": "Country → 16 Województwa → Gminy (API)",
+      "uk": "Country → 4 Countries → Regions/Council Areas",
+      "portugal": "Country → 7 Regiões"
+    },
+    "flagSource": "Wikimedia Commons SVG",
+    "boundarySource": "OpenStreetMap"
+  },
+
+  "hierarchy": {
+    "eu": {
+      "type": "union",
+      "name": {"en": "European Union", "de": "Europäische Union", "fr": "Union Européenne"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Europe.svg/320px-Flag_of_Europe.svg.png",
+      "bounds": [[35.0, -10.0], [71.0, 40.0]],
+      "area": "4.2 million km²",
+      "population": "~450 million",
+      "children": ["austria", "belgium", "bulgaria", "croatia", "cyprus", "czechia", "denmark", "estonia", "finland", "france", "germany", "greece", "hungary", "ireland", "italy", "latvia", "lithuania", "luxembourg", "malta", "netherlands", "poland", "portugal", "romania", "slovakia", "slovenia", "spain", "sweden", "switzerland", "uk"]
+    },
+
+    "germany": {
+      "type": "country",
+      "name": {"en": "Germany", "de": "Deutschland", "fr": "Allemagne"},
+      "officialName": {"de": "Bundesrepublik Deutschland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Flag_of_Germany.svg/320px-Flag_of_Germany.svg.png",
+      "bounds": [[47.27, 5.87], [55.06, 15.04]],
+      "area": "357,022 km²",
+      "population": "83.2 million",
+      "capital": {"en": "Berlin", "de": "Berlin", "fr": "Berlin"},
+      "osmId": "51477",
+      "iso3166": "DE",
+      "children": ["baden-wuerttemberg", "bavaria", "berlin", "brandenburg", "bremen", "hamburg", "hesse", "lower-saxony", "mecklenburg-vorpommern", "north-rhine-westphalia", "rhineland-palatinate", "saarland", "saxony", "saxony-anhalt", "schleswig-holstein", "thuringia"]
+    },
+
+    "baden-wuerttemberg": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Baden-Württemberg", "de": "Baden-Württemberg", "fr": "Bade-Wurtemberg"},
+      "officialName": {"de": "Land Baden-Württemberg"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Flag_of_Baden-W%C3%BCrttemberg.svg/320px-Flag_of_Baden-W%C3%BCrttemberg.svg.png",
+      "bounds": [[47.53, 7.51], [49.79, 10.50]],
+      "area": "35,751 km²",
+      "population": "11.1 million",
+      "capital": {"en": "Stuttgart", "de": "Stuttgart", "fr": "Stuttgart"},
+      "osmId": "62611",
+      "iso3166": "DE-BW",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "bavaria": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Bavaria", "de": "Bayern", "fr": "Bavière"},
+      "officialName": {"de": "Freistaat Bayern"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_Bavaria_%28lozengy%29.svg/320px-Flag_of_Bavaria_%28lozengy%29.svg.png",
+      "bounds": [[47.27, 8.98], [50.56, 13.84]],
+      "area": "70,550 km²",
+      "population": "13.1 million",
+      "capital": {"en": "Munich", "de": "München", "fr": "Munich"},
+      "osmId": "2145268",
+      "iso3166": "DE-BY",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "berlin": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Berlin", "de": "Berlin", "fr": "Berlin"},
+      "officialName": {"de": "Land Berlin"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Flag_of_Berlin.svg/320px-Flag_of_Berlin.svg.png",
+      "bounds": [[52.34, 13.09], [52.68, 13.76]],
+      "area": "892 km²",
+      "population": "3.7 million",
+      "capital": {"en": "Berlin", "de": "Berlin", "fr": "Berlin"},
+      "osmId": "62422",
+      "iso3166": "DE-BE",
+      "children": ["charlottenburg-wilmersdorf", "friedrichshain-kreuzberg", "lichtenberg", "marzahn-hellersdorf", "mitte", "neukoelln", "pankow", "reinickendorf", "spandau", "steglitz-zehlendorf", "tempelhof-schoeneberg", "treptow-koepenick"]
+    },
+
+    "brandenburg": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Brandenburg", "de": "Brandenburg", "fr": "Brandebourg"},
+      "officialName": {"de": "Land Brandenburg"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Flag_of_Brandenburg.svg/320px-Flag_of_Brandenburg.svg.png",
+      "bounds": [[51.36, 11.27], [53.56, 14.77]],
+      "area": "29,654 km²",
+      "population": "2.5 million",
+      "capital": {"en": "Potsdam", "de": "Potsdam", "fr": "Potsdam"},
+      "osmId": "62504",
+      "iso3166": "DE-BB",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "bremen": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Bremen", "de": "Bremen", "fr": "Brême"},
+      "officialName": {"de": "Freie Hansestadt Bremen"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Flag_of_Bremen.svg/320px-Flag_of_Bremen.svg.png",
+      "bounds": [[53.01, 8.48], [53.60, 8.99]],
+      "area": "420 km²",
+      "population": "0.7 million",
+      "capital": {"en": "Bremen", "de": "Bremen", "fr": "Brême"},
+      "osmId": "62718",
+      "iso3166": "DE-HB",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "hamburg": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Hamburg", "de": "Hamburg", "fr": "Hambourg"},
+      "officialName": {"de": "Freie und Hansestadt Hamburg"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Flag_of_Hamburg.svg/320px-Flag_of_Hamburg.svg.png",
+      "bounds": [[53.39, 8.42], [53.96, 10.33]],
+      "area": "755 km²",
+      "population": "1.9 million",
+      "capital": {"en": "Hamburg", "de": "Hamburg", "fr": "Hambourg"},
+      "osmId": "62782",
+      "iso3166": "DE-HH",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "hesse": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Hesse", "de": "Hessen", "fr": "Hesse"},
+      "officialName": {"de": "Land Hessen"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Flag_of_Hesse.svg/320px-Flag_of_Hesse.svg.png",
+      "bounds": [[49.40, 7.77], [51.66, 10.24]],
+      "area": "21,115 km²",
+      "population": "6.3 million",
+      "capital": {"en": "Wiesbaden", "de": "Wiesbaden", "fr": "Wiesbaden"},
+      "osmId": "62650",
+      "iso3166": "DE-HE",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "lower-saxony": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Lower Saxony", "de": "Niedersachsen", "fr": "Basse-Saxe"},
+      "officialName": {"de": "Land Niedersachsen"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Flag_of_Lower_Saxony.svg/320px-Flag_of_Lower_Saxony.svg.png",
+      "bounds": [[51.30, 6.65], [53.89, 11.60]],
+      "area": "47,614 km²",
+      "population": "8.0 million",
+      "capital": {"en": "Hanover", "de": "Hannover", "fr": "Hanovre"},
+      "osmId": "62771",
+      "iso3166": "DE-NI",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "mecklenburg-vorpommern": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Mecklenburg-Vorpommern", "de": "Mecklenburg-Vorpommern", "fr": "Mecklembourg-Poméranie-Occidentale"},
+      "officialName": {"de": "Land Mecklenburg-Vorpommern"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Flag_of_Mecklenburg-Western_Pomerania_%28state%29.svg/320px-Flag_of_Mecklenburg-Western_Pomerania_%28state%29.svg.png",
+      "bounds": [[53.11, 10.59], [54.69, 14.41]],
+      "area": "23,294 km²",
+      "population": "1.6 million",
+      "capital": {"en": "Schwerin", "de": "Schwerin", "fr": "Schwerin"},
+      "osmId": "28322",
+      "iso3166": "DE-MV",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "north-rhine-westphalia": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "North Rhine-Westphalia", "de": "Nordrhein-Westfalen", "fr": "Rhénanie-du-Nord-Westphalie"},
+      "officialName": {"de": "Land Nordrhein-Westfalen"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_North_Rhine-Westphalia.svg/320px-Flag_of_North_Rhine-Westphalia.svg.png",
+      "bounds": [[50.32, 5.87], [52.53, 9.46]],
+      "area": "34,113 km²",
+      "population": "17.9 million",
+      "capital": {"en": "Düsseldorf", "de": "Düsseldorf", "fr": "Düsseldorf"},
+      "osmId": "62761",
+      "iso3166": "DE-NW",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "rhineland-palatinate": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Rhineland-Palatinate", "de": "Rheinland-Pfalz", "fr": "Rhénanie-Palatinat"},
+      "officialName": {"de": "Land Rheinland-Pfalz"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Flag_of_Rhineland-Palatinate.svg/320px-Flag_of_Rhineland-Palatinate.svg.png",
+      "bounds": [[48.97, 6.11], [50.94, 8.51]],
+      "area": "19,854 km²",
+      "population": "4.1 million",
+      "capital": {"en": "Mainz", "de": "Mainz", "fr": "Mayence"},
+      "osmId": "62341",
+      "iso3166": "DE-RP",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "saarland": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Saarland", "de": "Saarland", "fr": "Sarre"},
+      "officialName": {"de": "Saarland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Flag_of_Saarland.svg/320px-Flag_of_Saarland.svg.png",
+      "bounds": [[49.11, 6.36], [49.64, 7.40]],
+      "area": "2,569 km²",
+      "population": "1.0 million",
+      "capital": {"en": "Saarbrücken", "de": "Saarbrücken", "fr": "Sarrebruck"},
+      "osmId": "62372",
+      "iso3166": "DE-SL",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "saxony": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Saxony", "de": "Sachsen", "fr": "Saxe"},
+      "officialName": {"de": "Freistaat Sachsen"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Flag_of_Saxony.svg/320px-Flag_of_Saxony.svg.png",
+      "bounds": [[50.17, 11.87], [51.68, 15.04]],
+      "area": "18,416 km²",
+      "population": "4.1 million",
+      "capital": {"en": "Dresden", "de": "Dresden", "fr": "Dresde"},
+      "osmId": "62467",
+      "iso3166": "DE-SN",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "saxony-anhalt": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Saxony-Anhalt", "de": "Sachsen-Anhalt", "fr": "Saxe-Anhalt"},
+      "officialName": {"de": "Land Sachsen-Anhalt"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Flag_of_Saxony-Anhalt_%28state%29.svg/320px-Flag_of_Saxony-Anhalt_%28state%29.svg.png",
+      "bounds": [[50.94, 10.56], [53.04, 13.19]],
+      "area": "20,452 km²",
+      "population": "2.2 million",
+      "capital": {"en": "Magdeburg", "de": "Magdeburg", "fr": "Magdebourg"},
+      "osmId": "62607",
+      "iso3166": "DE-ST",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "schleswig-holstein": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Schleswig-Holstein", "de": "Schleswig-Holstein", "fr": "Schleswig-Holstein"},
+      "officialName": {"de": "Land Schleswig-Holstein"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Flag_of_Schleswig-Holstein.svg/320px-Flag_of_Schleswig-Holstein.svg.png",
+      "bounds": [[53.36, 7.86], [55.06, 11.31]],
+      "area": "15,802 km²",
+      "population": "2.9 million",
+      "capital": {"en": "Kiel", "de": "Kiel", "fr": "Kiel"},
+      "osmId": "51529",
+      "iso3166": "DE-SH",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "thuringia": {
+      "type": "state",
+      "parent": "germany",
+      "name": {"en": "Thuringia", "de": "Thüringen", "fr": "Thuringe"},
+      "officialName": {"de": "Freistaat Thüringen"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Flag_of_Thuringia.svg/320px-Flag_of_Thuringia.svg.png",
+      "bounds": [[50.20, 9.88], [51.65, 12.65]],
+      "area": "16,202 km²",
+      "population": "2.1 million",
+      "capital": {"en": "Erfurt", "de": "Erfurt", "fr": "Erfurt"},
+      "osmId": "62366",
+      "iso3166": "DE-TH",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeinde"}
+    },
+
+    "france": {
+      "type": "country",
+      "name": {"en": "France", "de": "Frankreich", "fr": "France"},
+      "officialName": {"fr": "République française"},
+      "flag": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_France.svg/320px-Flag_of_France.svg.png",
+      "bounds": [[41.3, -5.2], [51.1, 9.6]],
+      "area": "643,801 km²",
+      "population": "67.4 million",
+      "capital": {"en": "Paris", "de": "Paris", "fr": "Paris"},
+      "osmId": "2202162",
+      "iso3166": "FR",
+      "children": ["ain", "aisne", "allier", "alpes-de-haute-provence", "hautes-alpes", "alpes-maritimes", "ardeche", "ardennes", "ariege", "aube", "aude", "aveyron", "bouches-du-rhone", "calvados", "cantal", "charente", "charente-maritime", "cher", "correze", "corse-du-sud", "haute-corse", "cote-dor", "cotes-darmor", "creuse", "dordogne", "doubs", "drome", "eure", "eure-et-loir", "finistere", "gard", "haute-garonne", "gers", "gironde", "herault", "ille-et-vilaine", "indre", "indre-et-loire", "isere", "jura", "landes", "loir-et-cher", "loire", "haute-loire", "loire-atlantique", "loiret", "lot", "lot-et-garonne", "lozere", "maine-et-loire", "manche", "marne", "haute-marne", "mayenne", "meurthe-et-moselle", "meuse", "morbihan", "moselle", "nievre", "nord", "oise", "orne", "pas-de-calais", "puy-de-dome", "pyrenees-atlantiques", "hautes-pyrenees", "pyrenees-orientales", "bas-rhin", "haut-rhin", "rhone", "haute-saone", "saone-et-loire", "sarthe", "savoie", "haute-savoie", "paris", "seine-maritime", "seine-et-marne", "yvelines", "deux-sevres", "somme", "tarn", "tarn-et-garonne", "var", "vaucluse", "vendee", "vienne", "haute-vienne", "vosges", "yonne", "territoire-de-belfort", "essonne", "hauts-de-seine", "seine-saint-denis", "val-de-marne", "val-doise"]
+    },
+
+    "NOTE_FRANCE": "All 95 French départements listed above will be detailed below",
+
+    "ain": {
+      "type": "departement",
+      "parent": "france",
+      "code": "01",
+      "name": {"en": "Ain", "de": "Ain", "fr": "Ain"},
+      "capital": {"fr": "Bourg-en-Bresse"},
+      "osmId": "7401",
+      "loadFromAPI": {"adminLevel": "8", "type": "Commune"}
+    },
+
+    "italy": {
+      "type": "country",
+      "name": {"en": "Italy", "de": "Italien", "fr": "Italie"},
+      "officialName": {"it": "Repubblica Italiana"},
+      "flag": "https://upload.wikimedia.org/wikipedia/en/thumb/0/03/Flag_of_Italy.svg/320px-Flag_of_Italy.svg.png",
+      "bounds": [[35.49, 6.63], [47.09, 18.52]],
+      "area": "301,340 km²",
+      "population": "59.3 million",
+      "capital": {"en": "Rome", "de": "Rom", "fr": "Rome", "it": "Roma"},
+      "osmId": "365331",
+      "iso3166": "IT",
+      "children": ["abruzzo", "aosta-valley", "apulia", "basilicata", "calabria", "campania", "emilia-romagna", "friuli-venezia-giulia", "lazio", "liguria", "lombardy", "marche", "molise", "piedmont", "sardinia", "sicily", "trentino-alto-adige", "tuscany", "umbria", "veneto"]
+    },
+
+    "spain": {
+      "type": "country",
+      "name": {"en": "Spain", "de": "Spanien", "fr": "Espagne", "es": "España"},
+      "officialName": {"es": "Reino de España"},
+      "flag": "https://upload.wikimedia.org/wikipedia/en/thumb/9/9a/Flag_of_Spain.svg/320px-Flag_of_Spain.svg.png",
+      "bounds": [[35.95, -9.30], [43.79, 4.33]],
+      "area": "505,990 km²",
+      "population": "47.4 million",
+      "capital": {"en": "Madrid", "de": "Madrid", "fr": "Madrid", "es": "Madrid"},
+      "osmId": "1311341",
+      "iso3166": "ES",
+      "children": ["andalusia", "aragon", "asturias", "balearic-islands", "basque-country", "canary-islands", "cantabria", "castile-la-mancha", "castile-leon", "catalonia", "extremadura", "galicia", "la-rioja", "madrid-community", "murcia", "navarre", "valencian-community"]
+    },
+
+    "poland": {
+      "type": "country",
+      "name": {"en": "Poland", "de": "Polen", "fr": "Pologne", "pl": "Polska"},
+      "officialName": {"pl": "Rzeczpospolita Polska"},
+      "flag": "https://upload.wikimedia.org/wikipedia/en/thumb/1/12/Flag_of_Poland.svg/320px-Flag_of_Poland.svg.png",
+      "bounds": [[49.00, 14.12], [54.84, 24.15]],
+      "area": "312,696 km²",
+      "population": "38.0 million",
+      "capital": {"en": "Warsaw", "de": "Warschau", "fr": "Varsovie", "pl": "Warszawa"},
+      "osmId": "49715",
+      "iso3166": "PL",
+      "children": ["greater-poland", "kuyavian-pomeranian", "lesser-poland", "lodz", "lower-silesian", "lublin", "lubusz", "masovian", "opole", "podlaskie", "pomeranian", "silesian", "subcarpathian", "swietokrzyskie", "warmian-masurian", "west-pomeranian"]
+    },
+
+    "netherlands": {
+      "type": "country",
+      "name": {"en": "Netherlands", "de": "Niederlande", "fr": "Pays-Bas", "nl": "Nederland"},
+      "officialName": {"nl": "Koninkrijk der Nederlanden"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_the_Netherlands.svg/320px-Flag_of_the_Netherlands.svg.png",
+      "bounds": [[50.75, 3.36], [53.55, 7.23]],
+      "area": "41,543 km²",
+      "population": "17.5 million",
+      "capital": {"en": "Amsterdam", "de": "Amsterdam", "fr": "Amsterdam", "nl": "Amsterdam"},
+      "osmId": "47796",
+      "iso3166": "NL",
+      "children": ["drenthe", "flevoland", "friesland", "gelderland", "groningen", "limburg", "north-brabant", "north-holland", "overijssel", "south-holland", "utrecht", "zeeland"]
+    },
+
+    "drenthe": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Drenthe", "de": "Drenthe", "fr": "Drenthe", "nl": "Drenthe"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Flag_of_Drenthe.svg/320px-Flag_of_Drenthe.svg.png",
+      "capital": {"nl": "Assen"},
+      "osmId": "47540",
+      "iso3166": "NL-DR"
+    },
+
+    "flevoland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Flevoland", "de": "Flevoland", "fr": "Flevoland", "nl": "Flevoland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Flevoland.svg/320px-Flag_of_Flevoland.svg.png",
+      "capital": {"nl": "Lelystad"},
+      "osmId": "47407",
+      "iso3166": "NL-FL"
+    },
+
+    "friesland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Friesland", "de": "Friesland", "fr": "Frise", "nl": "Friesland", "fy": "Fryslân"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Flag_of_Friesland.svg/320px-Flag_of_Friesland.svg.png",
+      "capital": {"nl": "Leeuwarden"},
+      "osmId": "47381",
+      "iso3166": "NL-FR"
+    },
+
+    "gelderland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Gelderland", "de": "Gelderland", "fr": "Gueldre", "nl": "Gelderland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Flag_of_Gelderland.svg/320px-Flag_of_Gelderland.svg.png",
+      "capital": {"nl": "Arnhem"},
+      "osmId": "47554",
+      "iso3166": "NL-GE"
+    },
+
+    "groningen": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Groningen", "de": "Groningen", "fr": "Groningue", "nl": "Groningen"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Flag_of_Groningen.svg/320px-Flag_of_Groningen.svg.png",
+      "capital": {"nl": "Groningen"},
+      "osmId": "47826",
+      "iso3166": "NL-GR"
+    },
+
+    "limburg": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Limburg", "de": "Limburg", "fr": "Limbourg", "nl": "Limburg"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Flag_of_Limburg_%28Netherlands%29.svg/320px-Flag_of_Limburg_%28Netherlands%29.svg.png",
+      "capital": {"nl": "Maastricht"},
+      "osmId": "47793",
+      "iso3166": "NL-LI"
+    },
+
+    "north-brabant": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "North Brabant", "de": "Nordbrabant", "fr": "Brabant-Septentrional", "nl": "Noord-Brabant"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Flag_North-Brabant%2C_Netherlands.svg/320px-Flag_North-Brabant%2C_Netherlands.svg.png",
+      "capital": {"nl": "'s-Hertogenbosch"},
+      "osmId": "47696",
+      "iso3166": "NL-NB"
+    },
+
+    "north-holland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "North Holland", "de": "Nordholland", "fr": "Hollande-Septentrionale", "nl": "Noord-Holland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Flag_of_North_Holland.svg/320px-Flag_of_North_Holland.svg.png",
+      "capital": {"nl": "Haarlem"},
+      "osmId": "47654",
+      "iso3166": "NL-NH"
+    },
+
+    "overijssel": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Overijssel", "de": "Overijssel", "fr": "Overijssel", "nl": "Overijssel"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Flag_of_Overijssel.svg/320px-Flag_of_Overijssel.svg.png",
+      "capital": {"nl": "Zwolle"},
+      "osmId": "47608",
+      "iso3166": "NL-OV"
+    },
+
+    "south-holland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "South Holland", "de": "Südholland", "fr": "Hollande-Méridionale", "nl": "Zuid-Holland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Flag_of_South_Holland.svg/320px-Flag_of_South_Holland.svg.png",
+      "capital": {"nl": "The Hague"},
+      "osmId": "47667",
+      "iso3166": "NL-ZH"
+    },
+
+    "utrecht": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Utrecht", "de": "Utrecht", "fr": "Utrecht", "nl": "Utrecht"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Flag_Province_of_Utrecht.svg/320px-Flag_Province_of_Utrecht.svg.png",
+      "capital": {"nl": "Utrecht"},
+      "osmId": "47667",
+      "iso3166": "NL-UT"
+    },
+
+    "zeeland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Zeeland", "de": "Zeeland", "fr": "Zélande", "nl": "Zeeland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Flag_of_Zeeland.svg/320px-Flag_of_Zeeland.svg.png",
+      "capital": {"nl": "Middelburg"},
+      "osmId": "47806",
+      "iso3166": "NL-ZE"
+    },
+
+    "portugal": {
+      "type": "country",
+      "name": {"en": "Portugal", "de": "Portugal", "fr": "Portugal", "pt": "Portugal"},
+      "officialName": {"pt": "República Portuguesa"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_Portugal.svg/320px-Flag_of_Portugal.svg.png",
+      "bounds": [[36.96, -9.50], [42.15, -6.19]],
+      "area": "92,212 km²",
+      "population": "10.3 million",
+      "capital": {"en": "Lisbon", "de": "Lissabon", "fr": "Lisbonne", "pt": "Lisboa"},
+      "osmId": "295480",
+      "iso3166": "PT",
+      "children": ["azores", "alentejo", "algarve", "centro", "lisbon-region", "madeira", "norte"]
+    },
+
+    "netherlands": {
+      "type": "country",
+      "name": {"en": "Netherlands", "de": "Niederlande", "fr": "Pays-Bas", "nl": "Nederland"},
+      "officialName": {"nl": "Koninkrijk der Nederlanden"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_the_Netherlands.svg/320px-Flag_of_the_Netherlands.svg.png",
+      "bounds": [[50.75, 3.36], [53.55, 7.23]],
+      "area": "41,543 km²",
+      "population": "17.5 million",
+      "capital": {"en": "Amsterdam", "de": "Amsterdam", "fr": "Amsterdam", "nl": "Amsterdam"},
+      "osmId": "47796",
+      "iso3166": "NL",
+      "children": ["drenthe", "flevoland", "friesland", "gelderland", "groningen", "limburg", "north-brabant", "north-holland", "overijssel", "south-holland", "utrecht", "zeeland"]
+    },
+
+    "drenthe": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Drenthe", "de": "Drenthe", "fr": "Drenthe", "nl": "Drenthe"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Flag_Drenthe.svg/320px-Flag_Drenthe.svg.png",
+      "capital": {"nl": "Assen"},
+      "osmId": "47540",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "flevoland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Flevoland", "de": "Flevoland", "fr": "Flevoland", "nl": "Flevoland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_Flevoland.svg/320px-Flag_Flevoland.svg.png",
+      "capital": {"nl": "Lelystad"},
+      "osmId": "47407",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "friesland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Friesland", "de": "Friesland", "fr": "Frise", "nl": "Fryslân"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Flag_of_Friesland.svg/320px-Flag_of_Friesland.svg.png",
+      "capital": {"nl": "Leeuwarden"},
+      "osmId": "47381",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "gelderland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Gelderland", "de": "Gelderland", "fr": "Gueldre", "nl": "Gelderland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Gelderland-Flag.svg/320px-Gelderland-Flag.svg.png",
+      "capital": {"nl": "Arnhem"},
+      "osmId": "47554",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "groningen": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Groningen", "de": "Groningen", "fr": "Groningue", "nl": "Groningen"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Flag_Groningen.svg/320px-Flag_Groningen.svg.png",
+      "capital": {"nl": "Groningen"},
+      "osmId": "47779",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "limburg": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Limburg", "de": "Limburg", "fr": "Limbourg", "nl": "Limburg"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Limburg-Flag.svg/320px-Limburg-Flag.svg.png",
+      "capital": {"nl": "Maastricht"},
+      "osmId": "47793",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "north-brabant": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "North Brabant", "de": "Nordbrabant", "fr": "Brabant-Septentrional", "nl": "Noord-Brabant"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/North_Brabant-Flag.svg/320px-North_Brabant-Flag.svg.png",
+      "capital": {"nl": "'s-Hertogenbosch"},
+      "osmId": "47696",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "north-holland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "North Holland", "de": "Nordholland", "fr": "Hollande-Septentrionale", "nl": "Noord-Holland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Flag_North-Holland%2C_Netherlands.svg/320px-Flag_North-Holland%2C_Netherlands.svg.png",
+      "capital": {"nl": "Haarlem"},
+      "osmId": "47654",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "overijssel": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Overijssel", "de": "Overijssel", "fr": "Overijssel", "nl": "Overijssel"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Flag_Overijssel.svg/320px-Flag_Overijssel.svg.png",
+      "capital": {"nl": "Zwolle"},
+      "osmId": "47608",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "south-holland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "South Holland", "de": "Südholland", "fr": "Hollande-Méridionale", "nl": "Zuid-Holland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Flag_Zuid-Holland.svg/320px-Flag_Zuid-Holland.svg.png",
+      "capital": {"nl": "Den Haag"},
+      "osmId": "47667",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "utrecht": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Utrecht", "de": "Utrecht", "fr": "Utrecht", "nl": "Utrecht"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Utrecht_flag.svg/320px-Utrecht_flag.svg.png",
+      "capital": {"nl": "Utrecht"},
+      "osmId": "47667",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "zeeland": {
+      "type": "province",
+      "parent": "netherlands",
+      "name": {"en": "Zeeland", "de": "Zeeland", "fr": "Zélande", "nl": "Zeeland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Zeeland_flag.svg/320px-Zeeland_flag.svg.png",
+      "capital": {"nl": "Middelburg"},
+      "osmId": "47806",
+      "loadFromAPI": {"adminLevel": "8", "type": "Gemeente"}
+    },
+
+    "sweden": {
+      "type": "country",
+      "name": {"en": "Sweden", "de": "Schweden", "fr": "Suède", "sv": "Sverige"},
+      "officialName": {"sv": "Konungariket Sverige"},
+      "flag": "https://upload.wikimedia.org/wikipedia/en/thumb/4/4c/Flag_of_Sweden.svg/320px-Flag_of_Sweden.svg.png",
+      "bounds": [[55.34, 10.96], [69.06, 24.17]],
+      "area": "450,295 km²",
+      "population": "10.4 million",
+      "capital": {"en": "Stockholm", "de": "Stockholm", "fr": "Stockholm", "sv": "Stockholm"},
+      "osmId": "52822",
+      "iso3166": "SE",
+      "children": ["blekinge", "dalarna", "gavleborg", "gotland", "halland", "jamtland", "jonkoping", "kalmar", "kronoberg", "norrbotten", "orebro", "ostergotland", "skane", "sodermanland", "stockholm", "uppsala", "varmland", "vasterbotten", "vasternorrland", "vastmanland", "vastra-gotaland"]
+    },
+
+    "blekinge": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Blekinge", "de": "Blekinge", "fr": "Blekinge", "sv": "Blekinge län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Blekinge_laan_vapen.svg/200px-Blekinge_laan_vapen.svg.png",
+      "capital": {"sv": "Karlskrona"},
+      "osmId": "940966",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "dalarna": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Dalarna", "de": "Dalarna", "fr": "Dalécarlie", "sv": "Dalarnas län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Dalarnas_laan_vapen.svg/200px-Dalarnas_laan_vapen.svg.png",
+      "capital": {"sv": "Falun"},
+      "osmId": "52834",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "gavleborg": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Gävleborg", "de": "Gävleborg", "fr": "Gävleborg", "sv": "Gävleborgs län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Gaevleborgs_laan_vapen.svg/200px-Gaevleborgs_laan_vapen.svg.png",
+      "capital": {"sv": "Gävle"},
+      "osmId": "52891",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "gotland": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Gotland", "de": "Gotland", "fr": "Gotland", "sv": "Gotlands län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Gotlands_laan_vapen.svg/200px-Gotlands_laan_vapen.svg.png",
+      "capital": {"sv": "Visby"},
+      "osmId": "941530",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "halland": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Halland", "de": "Halland", "fr": "Halland", "sv": "Hallands län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Hallands_laan_vapen.svg/200px-Hallands_laan_vapen.svg.png",
+      "capital": {"sv": "Halmstad"},
+      "osmId": "940904",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "jamtland": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Jämtland", "de": "Jämtland", "fr": "Jämtland", "sv": "Jämtlands län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Jaemtlands_laan_vapen.svg/200px-Jaemtlands_laan_vapen.svg.png",
+      "capital": {"sv": "Östersund"},
+      "osmId": "52900",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "jonkoping": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Jönköping", "de": "Jönköping", "fr": "Jönköping", "sv": "Jönköpings län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Joenkoepings_laan_vapen.svg/200px-Joenkoepings_laan_vapen.svg.png",
+      "capital": {"sv": "Jönköping"},
+      "osmId": "940843",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "kalmar": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Kalmar", "de": "Kalmar", "fr": "Kalmar", "sv": "Kalmar län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Kalmars_laan_vapen.svg/200px-Kalmars_laan_vapen.svg.png",
+      "capital": {"sv": "Kalmar"},
+      "osmId": "941146",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "kronoberg": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Kronoberg", "de": "Kronoberg", "fr": "Kronoberg", "sv": "Kronobergs län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Kronobergs_laan_vapen.svg/200px-Kronobergs_laan_vapen.svg.png",
+      "capital": {"sv": "Växjö"},
+      "osmId": "940819",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "norrbotten": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Norrbotten", "de": "Norrbotten", "fr": "Norrbotten", "sv": "Norrbottens län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Norrbottens_laan_vapen.svg/200px-Norrbottens_laan_vapen.svg.png",
+      "capital": {"sv": "Luleå"},
+      "osmId": "52824",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "orebro": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Örebro", "de": "Örebro", "fr": "Örebro", "sv": "Örebro län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Oerebro_laan_vapen.svg/200px-Oerebro_laan_vapen.svg.png",
+      "capital": {"sv": "Örebro"},
+      "osmId": "940676",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "ostergotland": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Östergötland", "de": "Östergötland", "fr": "Östergötland", "sv": "Östergötlands län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Oestergoetlands_laan_vapen.svg/200px-Oestergoetlands_laan_vapen.svg.png",
+      "capital": {"sv": "Linköping"},
+      "osmId": "940962",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "skane": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Skåne", "de": "Schonen", "fr": "Scanie", "sv": "Skåne län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Skaanes_laan_vapen.svg/200px-Skaanes_laan_vapen.svg.png",
+      "capital": {"sv": "Malmö"},
+      "osmId": "940706",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "sodermanland": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Södermanland", "de": "Södermanland", "fr": "Södermanland", "sv": "Södermanlands län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Soedermanlands_laan_vapen.svg/200px-Soedermanlands_laan_vapen.svg.png",
+      "capital": {"sv": "Nyköping"},
+      "osmId": "941001",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "stockholm": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Stockholm", "de": "Stockholm", "fr": "Stockholm", "sv": "Stockholms län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Stockholms_laan_vapen.svg/200px-Stockholms_laan_vapen.svg.png",
+      "capital": {"sv": "Stockholm"},
+      "osmId": "54391",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "uppsala": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Uppsala", "de": "Uppsala", "fr": "Uppsala", "sv": "Uppsala län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Uppsala_laan_vapen.svg/200px-Uppsala_laan_vapen.svg.png",
+      "capital": {"sv": "Uppsala"},
+      "osmId": "54223",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "varmland": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Värmland", "de": "Värmland", "fr": "Värmland", "sv": "Värmlands län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Vaermlands_laan_vapen.svg/200px-Vaermlands_laan_vapen.svg.png",
+      "capital": {"sv": "Karlstad"},
+      "osmId": "940637",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "vasterbotten": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Västerbotten", "de": "Västerbotten", "fr": "Västerbotten", "sv": "Västerbottens län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Vaesterbottens_laan_vapen.svg/200px-Vaesterbottens_laan_vapen.svg.png",
+      "capital": {"sv": "Umeå"},
+      "osmId": "52827",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "vasternorrland": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Västernorrland", "de": "Västernorrland", "fr": "Västernorrland", "sv": "Västernorrlands län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Vaesternorrlands_laan_vapen.svg/200px-Vaesternorrlands_laan_vapen.svg.png",
+      "capital": {"sv": "Härnösand"},
+      "osmId": "52845",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "vastmanland": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Västmanland", "de": "Västmanland", "fr": "Västmanland", "sv": "Västmanlands län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Vaestmanlands_laan_vapen.svg/200px-Vaestmanlands_laan_vapen.svg.png",
+      "capital": {"sv": "Västerås"},
+      "osmId": "940699",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "vastra-gotaland": {
+      "type": "county",
+      "parent": "sweden",
+      "name": {"en": "Västra Götaland", "de": "Västra Götaland", "fr": "Västra Götaland", "sv": "Västra Götalands län"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Vaestra_Goetalands_laan_vapen.svg/200px-Vaestra_Goetalands_laan_vapen.svg.png",
+      "capital": {"sv": "Göteborg"},
+      "osmId": "940807",
+      "loadFromAPI": {"adminLevel": "7", "type": "Kommun"}
+    },
+
+    "switzerland": {
+      "type": "country",
+      "name": {"en": "Switzerland", "de": "Schweiz", "fr": "Suisse", "it": "Svizzera"},
+      "officialName": {"de": "Schweizerische Eidgenossenschaft", "fr": "Confédération suisse"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Switzerland.svg/320px-Flag_of_Switzerland.svg.png",
+      "bounds": [[45.82, 5.96], [47.81, 10.49]],
+      "area": "41,285 km²",
+      "population": "8.7 million",
+      "capital": {"en": "Bern", "de": "Bern", "fr": "Berne"},
+      "osmId": "51701",
+      "iso3166": "CH"
+    },
+
+    "uk": {
+      "type": "country",
+      "name": {"en": "United Kingdom", "de": "Vereinigtes Königreich", "fr": "Royaume-Uni"},
+      "officialName": {"en": "United Kingdom of Great Britain and Northern Ireland"},
+      "flag": "https://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Flag_of_the_United_Kingdom.svg/320px-Flag_of_the_United_Kingdom.svg.png",
+      "bounds": [[49.9, -8.2], [60.9, 1.8]],
+      "area": "243,610 km²",
+      "population": "67.3 million",
+      "capital": {"en": "London", "de": "London", "fr": "Londres"},
+      "osmId": "62149",
+      "iso3166": "GB",
+      "children": ["england", "scotland", "wales", "northern-ireland"]
+    },
+
+    "england": {
+      "type": "constituent_country",
+      "parent": "uk",
+      "name": {"en": "England", "de": "England", "fr": "Angleterre"},
+      "flag": "https://upload.wikimedia.org/wikipedia/en/thumb/b/be/Flag_of_England.svg/320px-Flag_of_England.svg.png",
+      "bounds": [[49.9, -6.4], [55.8, 1.8]],
+      "area": "130,279 km²",
+      "population": "56.5 million",
+      "capital": {"en": "London"},
+      "osmId": "58447",
+      "children": ["east-england", "east-midlands", "london", "north-east-england", "north-west-england", "south-east-england", "south-west-england", "west-midlands", "yorkshire-humber"]
+    },
+
+    "scotland": {
+      "type": "constituent_country",
+      "parent": "uk",
+      "name": {"en": "Scotland", "de": "Schottland", "fr": "Écosse", "gd": "Alba"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png",
+      "bounds": [[54.63, -8.65], [60.86, -0.73]],
+      "area": "77,933 km²",
+      "population": "5.5 million",
+      "capital": {"en": "Edinburgh", "de": "Edinburgh"},
+      "osmId": "58446",
+      "children": ["aberdeen-city", "aberdeenshire", "angus", "argyll-bute", "city-of-edinburgh", "clackmannanshire", "dumfries-galloway", "dundee-city", "east-ayrshire", "east-dunbartonshire", "east-lothian", "east-renfrewshire", "falkirk", "fife", "glasgow-city", "highland", "inverclyde", "midlothian", "moray", "north-ayrshire", "north-lanarkshire", "orkney-islands", "perth-kinross", "renfrewshire", "scottish-borders", "shetland-islands", "south-ayrshire", "south-lanarkshire", "stirling", "west-dunbartonshire", "west-lothian", "western-isles"]
+    },
+
+    "wales": {
+      "type": "constituent_country",
+      "parent": "uk",
+      "name": {"en": "Wales", "de": "Wales", "fr": "Pays de Galles", "cy": "Cymru"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Flag_of_Wales.svg/320px-Flag_of_Wales.svg.png",
+      "bounds": [[51.38, -5.30], [53.43, -2.65]],
+      "area": "20,779 km²",
+      "population": "3.1 million",
+      "capital": {"en": "Cardiff", "cy": "Caerdydd"},
+      "osmId": "58437"
+    },
+
+    "northern-ireland": {
+      "type": "constituent_country",
+      "parent": "uk",
+      "name": {"en": "Northern Ireland", "de": "Nordirland", "fr": "Irlande du Nord", "ga": "Tuaisceart Éireann"},
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/St_Patrick%27s_Saltire.svg/320px-St_Patrick%27s_Saltire.svg.png",
+      "bounds": [[54.02, -8.18], [55.31, -5.43]],
+      "area": "14,130 km²",
+      "population": "1.9 million",
+      "capital": {"en": "Belfast"},
+      "osmId": "156393"
+    }
+  }
+}
