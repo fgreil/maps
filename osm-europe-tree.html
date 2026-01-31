@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>European Map Navigator</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Ubuntu', sans-serif;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* Search Box - Upper Left */
+        .search-container {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-container:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+        }
+
+        #searchInput {
+            width: 380px;
+            padding: 16px 22px;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            font-weight: 400;
+            color: #1a1a1a;
+            background: transparent;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        #searchInput::placeholder {
+            color: #9ca3af;
+        }
+
+        /* Language Switcher - Upper Right */
+        .language-switcher {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+            display: flex;
+            gap: 2px;
+            padding: 6px;
+        }
+
+        .lang-btn {
+            padding: 10px 18px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        .lang-btn:hover {
+            background: rgba(0, 82, 204, 0.08);
+            color: #0052cc;
+        }
+
+        .lang-btn.active {
+            background: #0052cc;
+            color: white;
+        }
+
+        /* Navigation Controls - Lower Left */
+        .nav-controls {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(12px);
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+        }
+
+        .flag-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flag-icon {
+            width: 32px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            object-fit: cover;
+        }
+
+        .flag-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .flag-separator {
+            color: #d1d5db;
+            font-size: 18px;
+            margin: 0 4px;
+        }
+
+        .region-input-wrapper {
+            position: relative;
+            min-width: 220px;
+        }
+
+        #regionSearch {
+            padding: 10px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 400;
+            color: #1a1a1a;
+            background: white;
+            cursor: text;
+            outline: none;
+            width: 100%;
+            font-family: 'Ubuntu', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        #regionSearch:hover {
+            border-color: #0052cc;
+        }
+
+        #regionSearch:focus {
+            border-color: #0052cc;
+            box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+        }
+
+        .region-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1001;
+        }
+
+        .region-dropdown.show {
+            display: block;
+        }
+
+        .region-option {
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+
+        .region-option:hover {
+            background: #f3f4f6;
+        }
+
+        .region-option.selected {
+            background: #e0e7ff;
+            color: #0052cc;
+            font-weight: 500;
+        }
+
+        .no-subdivisions {
+            padding: 10px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #9ca3af;
+            background: #f9fafb;
+            font-family: 'Ubuntu', sans-serif;
+            font-style: italic;
+            min-width: 220px;
+        }
+
+        #regionSelect {
+            padding: 10px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 400;
+            color: #1a1a1a;
+            background: white;
+            cursor: pointer;
+            outline: none;
+            min-width: 180px;
+            font-family: 'Ubuntu', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        #regionSelect:hover {
+            border-color: #0052cc;
+        }
+
+        #regionSelect:focus {
+            border-color: #0052cc;
+            box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+        }
+
+        .go-button {
+            padding: 10px 20px;
+            background: #0052cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        .go-button:hover {
+            background: #003d99;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+        }
+
+        .go-button:active {
+            transform: translateY(0);
+        }
+
+        /* Info Panel - Lower Right */
+        .info-panel {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(12px);
+            padding: 20px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+            min-width: 280px;
+            max-width: 350px;
+        }
+
+        .scale-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .scale-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .scale-line {
+            width: 80px;
+            height: 3px;
+            background: #0052cc;
+            border-radius: 2px;
+        }
+
+        .zoom-level {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .metadata {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .metadata-title {
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .metadata-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 13px;
+        }
+
+        .metadata-label {
+            color: #6b7280;
+            font-weight: 500;
+            min-width: 80px;
+        }
+
+        .metadata-value {
+            color: #1a1a1a;
+            font-weight: 400;
+            text-align: right;
+            flex: 1;
+        }
+
+        .osm-link {
+            color: #0052cc;
+            text-decoration: none;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .osm-link:hover {
+            text-decoration: underline;
+        }
+
+        .region-flag-large {
+            width: 60px;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .leaflet-control-attribution {
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-container, .language-switcher, .nav-controls, .info-panel {
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <!-- Search Box -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search locations...">
+    </div>
+
+    <!-- Language Switcher -->
+    <div class="language-switcher">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="de">DE</button>
+        <button class="lang-btn" data-lang="fr">FR</button>
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="nav-controls">
+        <div class="flag-breadcrumb" id="flagBreadcrumb"></div>
+        <div class="region-input-wrapper">
+            <input type="text" id="regionSearch" placeholder="Type to search...">
+            <div id="regionDropdown" class="region-dropdown"></div>
+        </div>
+        <div id="noSubdivisions" class="no-subdivisions" style="display: none;">
+            No subdivision data available
+        </div>
+        <button class="go-button" id="goButton">Go</button>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+        <div class="scale-info">
+            <div class="scale-bar">
+                <div class="scale-line"></div>
+                <span id="scaleText">100 km</span>
+            </div>
+            <div class="zoom-level">
+                <span id="zoomLevel">Zoom: 5</span>
+            </div>
+        </div>
+        <div class="metadata" id="metadataContainer">
+            <div class="metadata-title">European Union</div>
+            <div class="metadata-row">
+                <span class="metadata-label">Area:</span>
+                <span class="metadata-value">4.2 million km²</span>
+            </div>
+            <div class="metadata-row">
+                <span class="metadata-label">Population:</span>
+                <span class="metadata-value">~450 million</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Initialize map centered on Europe
+        const map = L.map('map', {
+            zoomControl: false
+        }).setView([50.5, 10.0], 5);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // EU Blue color
+        const EU_BLUE = '#0052cc';
+
+        // Current language
+        let currentLang = 'en';
+
+        // Navigation state
+        let navigationStack = [];
+        let currentLayer = null;
+
+        // Translations
+        const translations = {
+            en: {
+                searchPlaceholder: 'Search locations...',
+                selectRegion: 'Select region...',
+                goButton: 'Go',
+                area: 'Area:',
+                population: 'Population:',
+                capital: 'Capital:',
+                zoom: 'Zoom:',
+                europeanUnion: 'European Union',
+                noSubdivisions: 'No subdivision data available'
+            },
+            de: {
+                searchPlaceholder: 'Orte suchen...',
+                selectRegion: 'Region wählen...',
+                goButton: 'Los',
+                area: 'Fläche:',
+                population: 'Bevölkerung:',
+                capital: 'Hauptstadt:',
+                zoom: 'Zoom:',
+                europeanUnion: 'Europäische Union',
+                noSubdivisions: 'Keine Unterteilungsdaten verfügbar'
+            },
+            fr: {
+                searchPlaceholder: 'Rechercher des lieux...',
+                selectRegion: 'Sélectionner la région...',
+                goButton: 'Aller',
+                area: 'Superficie:',
+                population: 'Population:',
+                capital: 'Capitale:',
+                zoom: 'Zoom:',
+                europeanUnion: 'Union Européenne',
+                noSubdivisions: 'Aucune donnée de subdivision disponible'
+            }
+        };
+
+        // Compact European data structure
+        const regionData = {
+            eu: {
+                name: { en: 'European Union', de: 'Europäische Union', fr: 'Union Européenne' },
+                flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Europe.svg/320px-Flag_of_Europe.svg.png',
+                bounds: [[35.0, -10.0], [71.0, 40.0]],
+                area: '4.2 million km²',
+                population: '~450 million',
+                children: ['austria', 'belgium', 'bulgaria', 'croatia', 'cyprus', 'czech', 'denmark', 'estonia', 'finland', 'france', 'germany', 'greece', 'hungary', 'ireland', 'italy', 'latvia', 'lithuania', 'luxembourg', 'malta', 'netherlands', 'poland', 'portugal', 'romania', 'slovakia', 'slovenia', 'spain', 'sweden', 'switzerland', 'uk']
+            }
+        };
+
+        // Function to get region children from OSM
+        async function getRegionChildren(osmId, regionKey) {
+            // Hardcoded children for major regions to avoid complex OSM queries
+            const childrenMap = {
+                'germany': ['baden-wuerttemberg', 'bavaria', 'berlin', 'brandenburg', 'bremen', 'hamburg', 'hesse', 'lower-saxony', 'mecklenburg-vorpommern', 'north-rhine-westphalia', 'rhineland-palatinate', 'saarland', 'saxony', 'saxony-anhalt', 'schleswig-holstein', 'thuringia'],
+                'france': ['ain', 'aisne', 'allier', 'alpes-de-haute-provence', 'hautes-alpes', 'alpes-maritimes', 'ardeche', 'ardennes', 'ariege', 'aube', 'aude', 'aveyron', 'bouches-du-rhone', 'calvados', 'cantal', 'charente', 'charente-maritime', 'cher', 'correze', 'corse-du-sud', 'haute-corse', 'cote-dor', 'cotes-darmor', 'creuse', 'dordogne', 'doubs', 'drome', 'eure', 'eure-et-loir', 'finistere', 'gard', 'haute-garonne', 'gers', 'gironde', 'herault', 'ille-et-vilaine', 'indre', 'indre-et-loire', 'isere', 'jura', 'landes', 'loir-et-cher', 'loire', 'haute-loire', 'loire-atlantique', 'loiret', 'lot', 'lot-et-garonne', 'lozere', 'maine-et-loire', 'manche', 'marne', 'haute-marne', 'mayenne', 'meurthe-et-moselle', 'meuse', 'morbihan', 'moselle', 'nievre', 'nord', 'oise', 'orne', 'pas-de-calais', 'puy-de-dome', 'pyrenees-atlantiques', 'hautes-pyrenees', 'pyrenees-orientales', 'bas-rhin', 'haut-rhin', 'rhone', 'haute-saone', 'saone-et-loire', 'sarthe', 'savoie', 'haute-savoie', 'paris', 'seine-maritime', 'seine-et-marne', 'yvelines', 'deux-sevres', 'somme', 'tarn', 'tarn-et-garonne', 'var', 'vaucluse', 'vendee', 'vienne', 'haute-vienne', 'vosges', 'yonne', 'territoire-de-belfort', 'essonne', 'hauts-de-seine', 'seine-saint-denis', 'val-de-marne', 'val-doise'],
+                'italy': ['abruzzo', 'aosta-valley', 'apulia', 'basilicata', 'calabria', 'campania', 'emilia-romagna', 'friuli-venezia-giulia', 'lazio', 'liguria', 'lombardy', 'marche', 'molise', 'piedmont', 'sardinia', 'sicily', 'trentino-alto-adige', 'tuscany', 'umbria', 'veneto'],
+                'spain': ['andalusia', 'aragon', 'asturias', 'balearic-islands', 'basque-country', 'canary-islands', 'cantabria', 'castile-la-mancha', 'castile-leon', 'catalonia', 'extremadura', 'galicia', 'la-rioja', 'madrid-community', 'murcia', 'navarre', 'valencian-community'],
+                'poland': ['greater-poland', 'kuyavian-pomeranian', 'lesser-poland', 'lodz', 'lower-silesian', 'lublin', 'lubusz', 'masovian', 'opole', 'podlaskie', 'pomeranian', 'silesian', 'subcarpathian', 'swietokrzyskie', 'warmian-masurian', 'west-pomeranian'],
+                'portugal': ['azores', 'alentejo', 'algarve', 'centro', 'lisbon', 'madeira', 'norte'],
+                'uk': ['england', 'scotland', 'wales', 'northern-ireland'],
+                'england': ['east-england', 'east-midlands', 'london', 'north-east-england', 'north-west-england', 'south-east-england', 'south-west-england', 'west-midlands', 'yorkshire-humber'],
+                'scotland': ['aberdeen-city', 'aberdeenshire', 'angus', 'argyll-bute', 'city-of-edinburgh', 'clackmannanshire', 'dumfries-galloway', 'dundee-city', 'east-ayrshire', 'east-dunbartonshire', 'east-lothian', 'east-renfrewshire', 'falkirk', 'fife', 'glasgow-city', 'highland', 'inverclyde', 'midlothian', 'moray', 'north-ayrshire', 'north-lanarkshire', 'orkney-islands', 'perth-kinross', 'renfrewshire', 'scottish-borders', 'shetland-islands', 'south-ayrshire', 'south-lanarkshire', 'stirling', 'west-dunbartonshire', 'west-lothian', 'western-isles']
+            };
+            
+            return childrenMap[regionKey] || [];
+        }
+
+        // Comprehensive region metadata
+        const regionMetadata = {
+            // EU Countries
+            austria: { name: { en: 'Austria', de: 'Österreich', fr: 'Autriche' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Flag_of_Austria.svg/320px-Flag_of_Austria.svg.png', bounds: [[46.37, 9.53], [49.02, 17.16]], area: '83,879 km²', population: '9.0 million', capital: { en: 'Vienna', de: 'Wien', fr: 'Vienne' }, osmId: '16239' },
+            belgium: { name: { en: 'Belgium', de: 'Belgien', fr: 'Belgique' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Flag_of_Belgium.svg/320px-Flag_of_Belgium.svg.png', bounds: [[49.50, 2.54], [51.51, 6.41]], area: '30,528 km²', population: '11.6 million', capital: { en: 'Brussels', de: 'Brüssel', fr: 'Bruxelles' }, osmId: '52411' },
+            bulgaria: { name: { en: 'Bulgaria', de: 'Bulgarien', fr: 'Bulgarie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Bulgaria.svg/320px-Flag_of_Bulgaria.svg.png', bounds: [[41.24, 22.36], [44.22, 28.61]], area: '110,994 km²', population: '6.9 million', capital: { en: 'Sofia', de: 'Sofia', fr: 'Sofia' }, osmId: '186382' },
+            croatia: { name: { en: 'Croatia', de: 'Kroatien', fr: 'Croatie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Flag_of_Croatia.svg/320px-Flag_of_Croatia.svg.png', bounds: [[42.39, 13.49], [46.55, 19.43]], area: '56,594 km²', population: '4.0 million', capital: { en: 'Zagreb', de: 'Zagreb', fr: 'Zagreb' }, osmId: '214885' },
+            cyprus: { name: { en: 'Cyprus', de: 'Zypern', fr: 'Chypre' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Flag_of_Cyprus.svg/320px-Flag_of_Cyprus.svg.png', bounds: [[34.63, 32.27], [35.71, 34.60]], area: '9,251 km²', population: '1.2 million', capital: { en: 'Nicosia', de: 'Nikosia', fr: 'Nicosie' }, osmId: '307787' },
+            czech: { name: { en: 'Czech Republic', de: 'Tschechien', fr: 'République tchèque' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_the_Czech_Republic.svg/320px-Flag_of_the_Czech_Republic.svg.png', bounds: [[48.55, 12.09], [51.06, 18.86]], area: '78,866 km²', population: '10.5 million', capital: { en: 'Prague', de: 'Prag', fr: 'Prague' }, osmId: '51684' },
+            denmark: { name: { en: 'Denmark', de: 'Dänemark', fr: 'Danemark' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Flag_of_Denmark.svg/320px-Flag_of_Denmark.svg.png', bounds: [[54.56, 8.08], [57.75, 15.19]], area: '42,933 km²', population: '5.9 million', capital: { en: 'Copenhagen', de: 'Kopenhagen', fr: 'Copenhague' }, osmId: '50046' },
+            estonia: { name: { en: 'Estonia', de: 'Estland', fr: 'Estonie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Flag_of_Estonia.svg/320px-Flag_of_Estonia.svg.png', bounds: [[57.52, 21.77], [59.68, 28.21]], area: '45,227 km²', population: '1.3 million', capital: { en: 'Tallinn', de: 'Tallinn', fr: 'Tallinn' }, osmId: '79510' },
+            finland: { name: { en: 'Finland', de: 'Finnland', fr: 'Finlande' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Flag_of_Finland.svg/320px-Flag_of_Finland.svg.png', bounds: [[59.81, 20.55], [70.09, 31.59]], area: '338,424 km²', population: '5.5 million', capital: { en: 'Helsinki', de: 'Helsinki', fr: 'Helsinki' }, osmId: '54224' },
+            france: { name: { en: 'France', de: 'Frankreich', fr: 'France' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_France.svg/320px-Flag_of_France.svg.png', bounds: [[41.3, -5.2], [51.1, 9.6]], area: '643,801 km²', population: '67.4 million', capital: { en: 'Paris', de: 'Paris', fr: 'Paris' }, osmId: '2202162' },
+            germany: { name: { en: 'Germany', de: 'Deutschland', fr: 'Allemagne' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Flag_of_Germany.svg/320px-Flag_of_Germany.svg.png', bounds: [[47.27, 5.87], [55.06, 15.04]], area: '357,022 km²', population: '83.2 million', capital: { en: 'Berlin', de: 'Berlin', fr: 'Berlin' }, osmId: '51477' },
+            greece: { name: { en: 'Greece', de: 'Griechenland', fr: 'Grèce' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_Greece.svg/320px-Flag_of_Greece.svg.png', bounds: [[34.80, 19.37], [41.75, 28.24]], area: '131,957 km²', population: '10.4 million', capital: { en: 'Athens', de: 'Athen', fr: 'Athènes' }, osmId: '192307' },
+            hungary: { name: { en: 'Hungary', de: 'Ungarn', fr: 'Hongrie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Flag_of_Hungary.svg/320px-Flag_of_Hungary.svg.png', bounds: [[45.74, 16.11], [48.58, 22.90]], area: '93,030 km²', population: '9.7 million', capital: { en: 'Budapest', de: 'Budapest', fr: 'Budapest' }, osmId: '21335' },
+            ireland: { name: { en: 'Ireland', de: 'Irland', fr: 'Irlande' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png', bounds: [[51.45, -10.48], [55.39, -6.00]], area: '70,273 km²', population: '5.0 million', capital: { en: 'Dublin', de: 'Dublin', fr: 'Dublin' }, osmId: '62273' },
+            italy: { name: { en: 'Italy', de: 'Italien', fr: 'Italie' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/0/03/Flag_of_Italy.svg/320px-Flag_of_Italy.svg.png', bounds: [[35.49, 6.63], [47.09, 18.52]], area: '301,340 km²', population: '59.3 million', capital: { en: 'Rome', de: 'Rom', fr: 'Rome' }, osmId: '365331' },
+            latvia: { name: { en: 'Latvia', de: 'Lettland', fr: 'Lettonie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Flag_of_Latvia.svg/320px-Flag_of_Latvia.svg.png', bounds: [[55.67, 20.97], [58.09, 28.24]], area: '64,589 km²', population: '1.9 million', capital: { en: 'Riga', de: 'Riga', fr: 'Riga' }, osmId: '72594' },
+            lithuania: { name: { en: 'Lithuania', de: 'Litauen', fr: 'Lituanie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Flag_of_Lithuania.svg/320px-Flag_of_Lithuania.svg.png', bounds: [[53.90, 20.93], [56.45, 26.84]], area: '65,300 km²', population: '2.8 million', capital: { en: 'Vilnius', de: 'Vilnius', fr: 'Vilnius' }, osmId: '72596' },
+            luxembourg: { name: { en: 'Luxembourg', de: 'Luxemburg', fr: 'Luxembourg' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Flag_of_Luxembourg.svg/320px-Flag_of_Luxembourg.svg.png', bounds: [[49.45, 5.73], [50.18, 6.53]], area: '2,586 km²', population: '0.6 million', capital: { en: 'Luxembourg', de: 'Luxemburg', fr: 'Luxembourg' }, osmId: '2171347' },
+            malta: { name: { en: 'Malta', de: 'Malta', fr: 'Malte' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Flag_of_Malta.svg/320px-Flag_of_Malta.svg.png', bounds: [[35.81, 14.18], [36.08, 14.58]], area: '316 km²', population: '0.5 million', capital: { en: 'Valletta', de: 'Valletta', fr: 'La Valette' }, osmId: '365307' },
+            netherlands: { name: { en: 'Netherlands', de: 'Niederlande', fr: 'Pays-Bas' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_the_Netherlands.svg/320px-Flag_of_the_Netherlands.svg.png', bounds: [[50.75, 3.36], [53.55, 7.23]], area: '41,543 km²', population: '17.5 million', capital: { en: 'Amsterdam', de: 'Amsterdam', fr: 'Amsterdam' }, osmId: '47796' },
+            poland: { name: { en: 'Poland', de: 'Polen', fr: 'Pologne' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/12/Flag_of_Poland.svg/320px-Flag_of_Poland.svg.png', bounds: [[49.00, 14.12], [54.84, 24.15]], area: '312,696 km²', population: '38.0 million', capital: { en: 'Warsaw', de: 'Warschau', fr: 'Varsovie' }, osmId: '49715' },
+            portugal: { name: { en: 'Portugal', de: 'Portugal', fr: 'Portugal' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_Portugal.svg/320px-Flag_of_Portugal.svg.png', bounds: [[36.96, -9.50], [42.15, -6.19]], area: '92,212 km²', population: '10.3 million', capital: { en: 'Lisbon', de: 'Lissabon', fr: 'Lisbonne' }, osmId: '295480' },
+            romania: { name: { en: 'Romania', de: 'Rumänien', fr: 'Roumanie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Flag_of_Romania.svg/320px-Flag_of_Romania.svg.png', bounds: [[43.62, 20.26], [48.27, 29.71]], area: '238,391 km²', population: '19.3 million', capital: { en: 'Bucharest', de: 'Bukarest', fr: 'Bucarest' }, osmId: '90689' },
+            slovakia: { name: { en: 'Slovakia', de: 'Slowakei', fr: 'Slovaquie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Flag_of_Slovakia.svg/320px-Flag_of_Slovakia.svg.png', bounds: [[47.73, 16.83], [49.61, 22.56]], area: '49,035 km²', population: '5.5 million', capital: { en: 'Bratislava', de: 'Bratislava', fr: 'Bratislava' }, osmId: '14296' },
+            slovenia: { name: { en: 'Slovenia', de: 'Slowenien', fr: 'Slovénie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Flag_of_Slovenia.svg/320px-Flag_of_Slovenia.svg.png', bounds: [[45.42, 13.38], [46.88, 16.61]], area: '20,273 km²', population: '2.1 million', capital: { en: 'Ljubljana', de: 'Ljubljana', fr: 'Ljubljana' }, osmId: '218657' },
+            spain: { name: { en: 'Spain', de: 'Spanien', fr: 'Espagne' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/9a/Flag_of_Spain.svg/320px-Flag_of_Spain.svg.png', bounds: [[35.95, -9.30], [43.79, 4.33]], area: '505,990 km²', population: '47.4 million', capital: { en: 'Madrid', de: 'Madrid', fr: 'Madrid' }, osmId: '1311341' },
+            sweden: { name: { en: 'Sweden', de: 'Schweden', fr: 'Suède' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/4c/Flag_of_Sweden.svg/320px-Flag_of_Sweden.svg.png', bounds: [[55.34, 10.96], [69.06, 24.17]], area: '450,295 km²', population: '10.4 million', capital: { en: 'Stockholm', de: 'Stockholm', fr: 'Stockholm' }, osmId: '52822' },
+            switzerland: { name: { en: 'Switzerland', de: 'Schweiz', fr: 'Suisse' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Switzerland.svg/320px-Flag_of_Switzerland.svg.png', bounds: [[45.82, 5.96], [47.81, 10.49]], area: '41,285 km²', population: '8.7 million', capital: { en: 'Bern', de: 'Bern', fr: 'Berne' }, osmId: '51701' },
+            uk: { name: { en: 'United Kingdom', de: 'Vereinigtes Königreich', fr: 'Royaume-Uni' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Flag_of_the_United_Kingdom.svg/320px-Flag_of_the_United_Kingdom.svg.png', bounds: [[49.9, -8.2], [60.9, 1.8]], area: '243,610 km²', population: '67.3 million', capital: { en: 'London', de: 'London', fr: 'Londres' }, osmId: '62149' },
+            
+            // German Bundesländer
+            'baden-wuerttemberg': { name: { en: 'Baden-Württemberg', de: 'Baden-Württemberg', fr: 'Bade-Wurtemberg' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Flag_of_Baden-W%C3%BCrttemberg.svg/320px-Flag_of_Baden-W%C3%BCrttemberg.svg.png', bounds: [[47.53, 7.51], [49.79, 10.50]], area: '35,751 km²', population: '11.1 million', capital: { en: 'Stuttgart', de: 'Stuttgart', fr: 'Stuttgart' }, osmId: '62611' },
+            bavaria: { name: { en: 'Bavaria', de: 'Bayern', fr: 'Bavière' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_Bavaria_%28lozengy%29.svg/320px-Flag_of_Bavaria_%28lozengy%29.svg.png', bounds: [[47.27, 8.98], [50.56, 13.84]], area: '70,550 km²', population: '13.1 million', capital: { en: 'Munich', de: 'München', fr: 'Munich' }, osmId: '2145268' },
+            berlin: { name: { en: 'Berlin', de: 'Berlin', fr: 'Berlin' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Flag_of_Berlin.svg/320px-Flag_of_Berlin.svg.png', bounds: [[52.34, 13.09], [52.68, 13.76]], area: '892 km²', population: '3.7 million', capital: { en: 'Berlin', de: 'Berlin', fr: 'Berlin' }, osmId: '62422' },
+            brandenburg: { name: { en: 'Brandenburg', de: 'Brandenburg', fr: 'Brandebourg' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Flag_of_Brandenburg.svg/320px-Flag_of_Brandenburg.svg.png', bounds: [[51.36, 11.27], [53.56, 14.77]], area: '29,654 km²', population: '2.5 million', capital: { en: 'Potsdam', de: 'Potsdam', fr: 'Potsdam' }, osmId: '62504' },
+            bremen: { name: { en: 'Bremen', de: 'Bremen', fr: 'Brême' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Flag_of_Bremen.svg/320px-Flag_of_Bremen.svg.png', bounds: [[53.01, 8.48], [53.60, 8.99]], area: '420 km²', population: '0.7 million', capital: { en: 'Bremen', de: 'Bremen', fr: 'Brême' }, osmId: '62718' },
+            hamburg: { name: { en: 'Hamburg', de: 'Hamburg', fr: 'Hambourg' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Flag_of_Hamburg.svg/320px-Flag_of_Hamburg.svg.png', bounds: [[53.39, 8.42], [53.96, 10.33]], area: '755 km²', population: '1.9 million', capital: { en: 'Hamburg', de: 'Hamburg', fr: 'Hambourg' }, osmId: '62782' },
+            hesse: { name: { en: 'Hesse', de: 'Hessen', fr: 'Hesse' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Flag_of_Hesse.svg/320px-Flag_of_Hesse.svg.png', bounds: [[49.40, 7.77], [51.66, 10.24]], area: '21,115 km²', population: '6.3 million', capital: { en: 'Wiesbaden', de: 'Wiesbaden', fr: 'Wiesbaden' }, osmId: '62650' },
+            'lower-saxony': { name: { en: 'Lower Saxony', de: 'Niedersachsen', fr: 'Basse-Saxe' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Flag_of_Lower_Saxony.svg/320px-Flag_of_Lower_Saxony.svg.png', bounds: [[51.30, 6.65], [53.89, 11.60]], area: '47,614 km²', population: '8.0 million', capital: { en: 'Hanover', de: 'Hannover', fr: 'Hanovre' }, osmId: '62771' },
+            'mecklenburg-vorpommern': { name: { en: 'Mecklenburg-Vorpommern', de: 'Mecklenburg-Vorpommern', fr: 'Mecklembourg-Poméranie-Occidentale' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Flag_of_Mecklenburg-Western_Pomerania_%28state%29.svg/320px-Flag_of_Mecklenburg-Western_Pomerania_%28state%29.svg.png', bounds: [[53.11, 10.59], [54.69, 14.41]], area: '23,294 km²', population: '1.6 million', capital: { en: 'Schwerin', de: 'Schwerin', fr: 'Schwerin' }, osmId: '28322' },
+            'north-rhine-westphalia': { name: { en: 'North Rhine-Westphalia', de: 'Nordrhein-Westfalen', fr: 'Rhénanie-du-Nord-Westphalie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_North_Rhine-Westphalia.svg/320px-Flag_of_North_Rhine-Westphalia.svg.png', bounds: [[50.32, 5.87], [52.53, 9.46]], area: '34,113 km²', population: '17.9 million', capital: { en: 'Düsseldorf', de: 'Düsseldorf', fr: 'Düsseldorf' }, osmId: '62761' },
+            'rhineland-palatinate': { name: { en: 'Rhineland-Palatinate', de: 'Rheinland-Pfalz', fr: 'Rhénanie-Palatinat' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Flag_of_Rhineland-Palatinate.svg/320px-Flag_of_Rhineland-Palatinate.svg.png', bounds: [[48.97, 6.11], [50.94, 8.51]], area: '19,854 km²', population: '4.1 million', capital: { en: 'Mainz', de: 'Mainz', fr: 'Mayence' }, osmId: '62341' },
+            saarland: { name: { en: 'Saarland', de: 'Saarland', fr: 'Sarre' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Flag_of_Saarland.svg/320px-Flag_of_Saarland.svg.png', bounds: [[49.11, 6.36], [49.64, 7.40]], area: '2,569 km²', population: '1.0 million', capital: { en: 'Saarbrücken', de: 'Saarbrücken', fr: 'Sarrebruck' }, osmId: '62372' },
+            saxony: { name: { en: 'Saxony', de: 'Sachsen', fr: 'Saxe' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Flag_of_Saxony.svg/320px-Flag_of_Saxony.svg.png', bounds: [[50.17, 11.87], [51.68, 15.04]], area: '18,416 km²', population: '4.1 million', capital: { en: 'Dresden', de: 'Dresden', fr: 'Dresde' }, osmId: '62467' },
+            'saxony-anhalt': { name: { en: 'Saxony-Anhalt', de: 'Sachsen-Anhalt', fr: 'Saxe-Anhalt' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Flag_of_Saxony-Anhalt_%28state%29.svg/320px-Flag_of_Saxony-Anhalt_%28state%29.svg.png', bounds: [[50.94, 10.56], [53.04, 13.19]], area: '20,452 km²', population: '2.2 million', capital: { en: 'Magdeburg', de: 'Magdeburg', fr: 'Magdebourg' }, osmId: '62607' },
+            'schleswig-holstein': { name: { en: 'Schleswig-Holstein', de: 'Schleswig-Holstein', fr: 'Schleswig-Holstein' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Flag_of_Schleswig-Holstein.svg/320px-Flag_of_Schleswig-Holstein.svg.png', bounds: [[53.36, 7.86], [55.06, 11.31]], area: '15,802 km²', population: '2.9 million', capital: { en: 'Kiel', de: 'Kiel', fr: 'Kiel' }, osmId: '51529' },
+            thuringia: { name: { en: 'Thuringia', de: 'Thüringen', fr: 'Thuringe' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Flag_of_Thuringia.svg/320px-Flag_of_Thuringia.svg.png', bounds: [[50.20, 9.88], [51.65, 12.65]], area: '16,202 km²', population: '2.1 million', capital: { en: 'Erfurt', de: 'Erfurt', fr: 'Erfurt' }, osmId: '62366' },
+            
+            // French Regions
+            'auvergne-rhone-alpes': { name: { en: 'Auvergne-Rhône-Alpes', de: 'Auvergne-Rhône-Alpes', fr: 'Auvergne-Rhône-Alpes' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Flag_of_Auvergne-Rh%C3%B4ne-Alpes_%28region%2C_France%29.svg/320px-Flag_of_Auvergne-Rh%C3%B4ne-Alpes_%28region%2C_France%29.svg.png', bounds: [[44.12, 2.05], [46.52, 7.17]], area: '69,711 km²', population: '8.0 million', capital: { en: 'Lyon', de: 'Lyon', fr: 'Lyon' }, osmId: '8638' },
+            'bourgogne-franche-comte': { name: { en: 'Bourgogne-Franche-Comté', de: 'Burgund-Franche-Comté', fr: 'Bourgogne-Franche-Comté' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Flag_of_Bourgogne-Franche-Comt%C3%A9.svg/320px-Flag_of_Bourgogne-Franche-Comt%C3%A9.svg.png', bounds: [[46.16, 2.84], [48.42, 7.18]], area: '47,784 km²', population: '2.8 million', capital: { en: 'Dijon', de: 'Dijon', fr: 'Dijon' }, osmId: '8636' },
+            brittany: { name: { en: 'Brittany', de: 'Bretagne', fr: 'Bretagne' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Flag_of_Brittany_%28Gwenn_ha_du%29.svg/320px-Flag_of_Brittany_%28Gwenn_ha_du%29.svg.png', bounds: [[47.25, -5.14], [48.89, -1.00]], area: '27,208 km²', population: '3.3 million', capital: { en: 'Rennes', de: 'Rennes', fr: 'Rennes' }, osmId: '7362' },
+            'centre-val-de-loire': { name: { en: 'Centre-Val de Loire', de: 'Centre-Val de Loire', fr: 'Centre-Val de Loire' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Centre-Val_de_Loire.svg/320px-Flag_of_Centre-Val_de_Loire.svg.png', bounds: [[46.35, 0.07], [48.97, 3.14]], area: '39,151 km²', population: '2.6 million', capital: { en: 'Orléans', de: 'Orléans', fr: 'Orléans' }, osmId: '8647' },
+            corsica: { name: { en: 'Corsica', de: 'Korsika', fr: 'Corse' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Flag_of_Corsica.svg/320px-Flag_of_Corsica.svg.png', bounds: [[41.33, 8.54], [43.03, 9.56]], area: '8,680 km²', population: '0.3 million', capital: { en: 'Ajaccio', de: 'Ajaccio', fr: 'Ajaccio' }, osmId: '76910' },
+            'grand-est': { name: { en: 'Grand Est', de: 'Grand Est', fr: 'Grand Est' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_Grand_Est.svg/320px-Flag_of_Grand_Est.svg.png', bounds: [[47.42, 3.37], [50.18, 8.23]], area: '57,433 km²', population: '5.6 million', capital: { en: 'Strasbourg', de: 'Straßburg', fr: 'Strasbourg' }, osmId: '8632' },
+            'hauts-de-france': { name: { en: 'Hauts-de-France', de: 'Hauts-de-France', fr: 'Hauts-de-France' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Flag_of_Hauts-de-France.svg/320px-Flag_of_Hauts-de-France.svg.png', bounds: [[49.16, 1.37], [51.09, 4.24]], area: '31,813 km²', population: '6.0 million', capital: { en: 'Lille', de: 'Lille', fr: 'Lille' }, osmId: '8642' },
+            'ile-de-france': { name: { en: 'Île-de-France', de: 'Île-de-France', fr: 'Île-de-France' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Flag_of_Ile-de-France.svg/320px-Flag_of_Ile-de-France.svg.png', bounds: [[48.12, 1.45], [49.24, 3.56]], area: '12,012 km²', population: '12.3 million', capital: { en: 'Paris', de: 'Paris', fr: 'Paris' }, osmId: '8649' },
+            normandy: { name: { en: 'Normandy', de: 'Normandie', fr: 'Normandie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Flag_of_Normandie.svg/320px-Flag_of_Normandie.svg.png', bounds: [[48.18, -1.99], [50.08, 1.79]], area: '29,906 km²', population: '3.3 million', capital: { en: 'Rouen', de: 'Rouen', fr: 'Rouen' }, osmId: '102740' },
+            'nouvelle-aquitaine': { name: { en: 'Nouvelle-Aquitaine', de: 'Nouvelle-Aquitaine', fr: 'Nouvelle-Aquitaine' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Flag_of_Nouvelle-Aquitaine.svg/320px-Flag_of_Nouvelle-Aquitaine.svg.png', bounds: [[42.78, -1.79], [46.81, 2.60]], area: '84,061 km²', population: '6.0 million', capital: { en: 'Bordeaux', de: 'Bordeaux', fr: 'Bordeaux' }, osmId: '8637' },
+            occitanie: { name: { en: 'Occitanie', de: 'Okzitanien', fr: 'Occitanie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Flag_of_Occitanie_%28region%2C_France%29.svg/320px-Flag_of_Occitanie_%28region%2C_France%29.svg.png', bounds: [[42.33, 0.10], [45.05, 4.84]], area: '72,724 km²', population: '5.9 million', capital: { en: 'Toulouse', de: 'Toulouse', fr: 'Toulouse' }, osmId: '8638' },
+            'pays-de-la-loire': { name: { en: 'Pays de la Loire', de: 'Pays de la Loire', fr: 'Pays de la Loire' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Flag_of_Pays-de-la-Loire.svg/320px-Flag_of_Pays-de-la-Loire.svg.png', bounds: [[46.27, -2.56], [48.58, 0.92]], area: '32,082 km²', population: '3.8 million', capital: { en: 'Nantes', de: 'Nantes', fr: 'Nantes' }, osmId: '8650' },
+            'provence-alpes-cote-dazur': { name: { en: 'Provence-Alpes-Côte d\'Azur', de: 'Provence-Alpes-Côte d\'Azur', fr: 'Provence-Alpes-Côte d\'Azur' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Flag_of_Provence-Alpes-C%C3%B4te_d%27Azur.svg/320px-Flag_of_Provence-Alpes-C%C3%B4te_d%27Azur.svg.png', bounds: [[42.98, 4.23], [45.13, 7.72]], area: '31,400 km²', population: '5.1 million', capital: { en: 'Marseille', de: 'Marseille', fr: 'Marseille' }, osmId: '8654' },
+            
+            // Italian Regions (all 20)
+            abruzzo: { name: { en: 'Abruzzo', de: 'Abruzzen', fr: 'Abruzzes' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Flag_of_Abruzzo.svg/320px-Flag_of_Abruzzo.svg.png', bounds: [[41.68, 13.00], [42.92, 14.78]], area: '10,763 km²', population: '1.3 million', capital: { en: 'L\'Aquila', de: 'L\'Aquila', fr: 'L\'Aquila' }, osmId: '53937' },
+            'aosta-valley': { name: { en: 'Aosta Valley', de: 'Aostatal', fr: 'Vallée d\'Aoste' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Flag_of_Valle_d%27Aosta.svg/320px-Flag_of_Valle_d%27Aosta.svg.png', bounds: [[45.49, 6.76], [46.01, 7.93]], area: '3,261 km²', population: '0.1 million', capital: { en: 'Aosta', de: 'Aosta', fr: 'Aoste' }, osmId: '45155' },
+            apulia: { name: { en: 'Apulia', de: 'Apulien', fr: 'Pouilles' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Flag_of_Apulia.svg/320px-Flag_of_Apulia.svg.png', bounds: [[39.79, 14.93], [42.00, 18.52]], area: '19,358 km²', population: '4.0 million', capital: { en: 'Bari', de: 'Bari', fr: 'Bari' }, osmId: '40095' },
+            basilicata: { name: { en: 'Basilicata', de: 'Basilikata', fr: 'Basilicate' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Flag_of_Basilicata.svg/320px-Flag_of_Basilicata.svg.png', bounds: [[39.89, 15.35], [41.14, 16.85]], area: '9,995 km²', population: '0.6 million', capital: { en: 'Potenza', de: 'Potenza', fr: 'Potenza' }, osmId: '40218' },
+            calabria: { name: { en: 'Calabria', de: 'Kalabrien', fr: 'Calabre' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Flag_of_Calabria.svg/320px-Flag_of_Calabria.svg.png', bounds: [[37.91, 15.63], [40.14, 17.21]], area: '15,080 km²', population: '1.9 million', capital: { en: 'Catanzaro', de: 'Catanzaro', fr: 'Catanzaro' }, osmId: '39076' },
+            campania: { name: { en: 'Campania', de: 'Kampanien', fr: 'Campanie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Flag_of_Campania.svg/320px-Flag_of_Campania.svg.png', bounds: [[39.99, 13.76], [41.51, 15.80]], area: '13,590 km²', population: '5.8 million', capital: { en: 'Naples', de: 'Neapel', fr: 'Naples' }, osmId: '40218' },
+            'emilia-romagna': { name: { en: 'Emilia-Romagna', de: 'Emilia-Romagna', fr: 'Émilie-Romagne' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Flag_of_Emilia-Romagna_%28de_facto%29.svg/320px-Flag_of_Emilia-Romagna_%28de_facto%29.svg.png', bounds: [[43.73, 9.19], [45.14, 12.76]], area: '22,446 km²', population: '4.5 million', capital: { en: 'Bologna', de: 'Bologna', fr: 'Bologne' }, osmId: '42611' },
+            'friuli-venezia-giulia': { name: { en: 'Friuli-Venezia Giulia', de: 'Friaul-Julisch Venetien', fr: 'Frioul-Vénétie Julienne' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Friuli-Venezia_Giulia.svg/320px-Flag_of_Friuli-Venezia_Giulia.svg.png', bounds: [[45.62, 12.34], [46.64, 13.91]], area: '7,858 km²', population: '1.2 million', capital: { en: 'Trieste', de: 'Triest', fr: 'Trieste' }, osmId: '179296' },
+            lazio: { name: { en: 'Lazio', de: 'Latium', fr: 'Latium' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Flag_of_Lazio.svg/320px-Flag_of_Lazio.svg.png', bounds: [[40.79, 11.46], [42.84, 13.71]], area: '17,236 km²', population: '5.9 million', capital: { en: 'Rome', de: 'Rom', fr: 'Rome' }, osmId: '40784' },
+            liguria: { name: { en: 'Liguria', de: 'Ligurien', fr: 'Ligurie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Flag_of_Liguria.svg/320px-Flag_of_Liguria.svg.png', bounds: [[43.78, 7.53], [44.69, 10.09]], area: '5,422 km²', population: '1.6 million', capital: { en: 'Genoa', de: 'Genua', fr: 'Gênes' }, osmId: '42618' },
+            lombardy: { name: { en: 'Lombardy', de: 'Lombardei', fr: 'Lombardie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Lombardy.svg/320px-Flag_of_Lombardy.svg.png', bounds: [[44.65, 8.49], [46.64, 11.50]], area: '23,844 km²', population: '10.1 million', capital: { en: 'Milan', de: 'Mailand', fr: 'Milan' }, osmId: '44879' },
+            marche: { name: { en: 'Marche', de: 'Marken', fr: 'Marches' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Flag_of_Marche.svg/320px-Flag_of_Marche.svg.png', bounds: [[42.69, 12.39], [43.99, 13.92]], area: '9,366 km²', population: '1.5 million', capital: { en: 'Ancona', de: 'Ancona', fr: 'Ancône' }, osmId: '53060' },
+            molise: { name: { en: 'Molise', de: 'Molise', fr: 'Molise' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Flag_of_Molise.svg/320px-Flag_of_Molise.svg.png', bounds: [[41.31, 13.76], [42.05, 15.16]], area: '4,438 km²', population: '0.3 million', capital: { en: 'Campobasso', de: 'Campobasso', fr: 'Campobasso' }, osmId: '41256' },
+            piedmont: { name: { en: 'Piedmont', de: 'Piemont', fr: 'Piémont' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Flag_of_Piedmont.svg/320px-Flag_of_Piedmont.svg.png', bounds: [[44.06, 6.63], [46.47, 9.21]], area: '25,402 km²', population: '4.4 million', capital: { en: 'Turin', de: 'Turin', fr: 'Turin' }, osmId: '44874' },
+            sardinia: { name: { en: 'Sardinia', de: 'Sardinien', fr: 'Sardaigne' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Flag_of_Sardinia%2C_Italy.svg/320px-Flag_of_Sardinia%2C_Italy.svg.png', bounds: [[38.86, 8.13], [41.31, 9.83]], area: '24,090 km²', population: '1.6 million', capital: { en: 'Cagliari', de: 'Cagliari', fr: 'Cagliari' }, osmId: '279816' },
+            sicily: { name: { en: 'Sicily', de: 'Sizilien', fr: 'Sicile' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sicilian_Flag.svg/320px-Sicilian_Flag.svg.png', bounds: [[36.64, 12.43], [38.81, 15.65]], area: '25,711 km²', population: '5.0 million', capital: { en: 'Palermo', de: 'Palermo', fr: 'Palerme' }, osmId: '39152' },
+            'trentino-alto-adige': { name: { en: 'Trentino-Alto Adige', de: 'Trentino-Südtirol', fr: 'Trentin-Haut-Adige' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Flag_of_Trentino-South_Tyrol.svg/320px-Flag_of_Trentino-South_Tyrol.svg.png', bounds: [[45.67, 10.38], [47.09, 12.48]], area: '13,607 km²', population: '1.1 million', capital: { en: 'Trento', de: 'Trient', fr: 'Trente' }, osmId: '45757' },
+            tuscany: { name: { en: 'Tuscany', de: 'Toskana', fr: 'Toscane' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Flag_of_Tuscany.svg/320px-Flag_of_Tuscany.svg.png', bounds: [[42.24, 9.69], [44.45, 12.37]], area: '22,990 km²', population: '3.7 million', capital: { en: 'Florence', de: 'Florenz', fr: 'Florence' }, osmId: '41977' },
+            umbria: { name: { en: 'Umbria', de: 'Umbrien', fr: 'Ombrie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Flag_of_Umbria.svg/320px-Flag_of_Umbria.svg.png', bounds: [[42.37, 11.88], [43.63, 13.27]], area: '8,456 km²', population: '0.9 million', capital: { en: 'Perugia', de: 'Perugia', fr: 'Pérouse' }, osmId: '42004' },
+            veneto: { name: { en: 'Veneto', de: 'Venetien', fr: 'Vénétie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Flag_of_Veneto.svg/320px-Flag_of_Veneto.svg.png', bounds: [[44.79, 10.58], [46.64, 13.02]], area: '18,399 km²', population: '4.9 million', capital: { en: 'Venice', de: 'Venedig', fr: 'Venise' }, osmId: '43648' },
+            
+            // Portuguese Regions (7)
+            azores: { name: { en: 'Azores', de: 'Azoren', fr: 'Açores' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Flag_of_the_Azores.svg/320px-Flag_of_the_Azores.svg.png', bounds: [[36.89, -31.27], [39.77, -24.77]], area: '2,322 km²', population: '0.2 million', capital: { en: 'Ponta Delgada', de: 'Ponta Delgada', fr: 'Ponta Delgada' }, osmId: '1629146' },
+            alentejo: { name: { en: 'Alentejo', de: 'Alentejo', fr: 'Alentejo' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Flag_of_Alentejo.svg/320px-Flag_of_Alentejo.svg.png', bounds: [[37.41, -8.88], [39.86, -7.03]], area: '31,551 km²', population: '0.7 million', capital: { en: 'Évora', de: 'Évora', fr: 'Évora' }, osmId: '2281792' },
+            algarve: { name: { en: 'Algarve', de: 'Algarve', fr: 'Algarve' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Flag_of_Algarve.svg/320px-Flag_of_Algarve.svg.png', bounds: [[36.96, -8.99], [37.44, -7.42]], area: '4,997 km²', population: '0.5 million', capital: { en: 'Faro', de: 'Faro', fr: 'Faro' }, osmId: '2281791' },
+            centro: { name: { en: 'Centro', de: 'Centro', fr: 'Centre' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Flag_of_Centro_Region%2C_Portugal.svg/320px-Flag_of_Centro_Region%2C_Portugal.svg.png', bounds: [[39.46, -9.50], [41.07, -6.19]], area: '28,462 km²', population: '2.3 million', capital: { en: 'Coimbra', de: 'Coimbra', fr: 'Coimbra' }, osmId: '2281794' },
+            lisbon: { name: { en: 'Lisbon', de: 'Lissabon', fr: 'Lisbonne' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Flag_of_Lisbon.svg/320px-Flag_of_Lisbon.svg.png', bounds: [[38.41, -9.50], [39.28, -8.41]], area: '2,870 km²', population: '2.8 million', capital: { en: 'Lisbon', de: 'Lissabon', fr: 'Lisbonne' }, osmId: '2281795' },
+            madeira: { name: { en: 'Madeira', de: 'Madeira', fr: 'Madère' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Madeira.svg/320px-Flag_of_Madeira.svg.png', bounds: [[32.38, -17.28], [33.15, -16.25]], area: '801 km²', population: '0.3 million', capital: { en: 'Funchal', de: 'Funchal', fr: 'Funchal' }, osmId: '2673418' },
+            norte: { name: { en: 'North Portugal', de: 'Nordportugal', fr: 'Nord du Portugal' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Flag_of_Norte_Region%2C_Portugal.svg/320px-Flag_of_Norte_Region%2C_Portugal.svg.png', bounds: [[40.53, -8.88], [42.15, -6.19]], area: '21,278 km²', population: '3.7 million', capital: { en: 'Porto', de: 'Porto', fr: 'Porto' }, osmId: '2281796' },
+            
+            // Spanish Regions (sample)
+            catalonia: { name: { en: 'Catalonia', de: 'Katalonien', fr: 'Catalogne' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Flag_of_Catalonia.svg/320px-Flag_of_Catalonia.svg.png', bounds: [[40.52, 0.16], [42.86, 3.33]], area: '32,108 km²', population: '7.7 million', capital: { en: 'Barcelona', de: 'Barcelona', fr: 'Barcelone' }, osmId: '347950' },
+            andalusia: { name: { en: 'Andalusia', de: 'Andalusien', fr: 'Andalousie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_Andaluc%C3%ADa.svg/320px-Flag_of_Andaluc%C3%ADa.svg.png', bounds: [[36.00, -7.53], [38.73, -1.63]], area: '87,268 km²', population: '8.5 million', capital: { en: 'Seville', de: 'Sevilla', fr: 'Séville' }, osmId: '349053' },
+            
+            // Polish Voivodeships (all 16)
+            'greater-poland': { name: { en: 'Greater Poland', de: 'Großpolen', fr: 'Grande-Pologne' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/POL_wojew%C3%B3dztwo_wielkopolskie_flag.svg/320px-POL_wojew%C3%B3dztwo_wielkopolskie_flag.svg.png', bounds: [[51.25, 15.78], [53.40, 18.96]], area: '29,826 km²', population: '3.5 million', capital: { en: 'Poznań', de: 'Posen', fr: 'Poznań' }, osmId: '130935' },
+            'kuyavian-pomeranian': { name: { en: 'Kuyavian-Pomeranian', de: 'Kujawien-Pommern', fr: 'Couïavie-Poméranie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/POL_wojew%C3%B3dztwo_kujawsko-pomorskie_flag.svg/320px-POL_wojew%C3%B3dztwo_kujawsko-pomorskie_flag.svg.png', bounds: [[52.18, 17.52], [53.86, 19.66]], area: '17,972 km²', population: '2.1 million', capital: { en: 'Bydgoszcz', de: 'Bromberg', fr: 'Bydgoszcz' }, osmId: '130925' },
+            'lesser-poland': { name: { en: 'Lesser Poland', de: 'Kleinpolen', fr: 'Petite-Pologne' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/POL_wojew%C3%B3dztwo_ma%C5%82opolskie_flag.svg/320px-POL_wojew%C3%B3dztwo_ma%C5%82opolskie_flag.svg.png', bounds: [[49.00, 18.86], [50.58, 21.27]], area: '15,183 km²', population: '3.4 million', capital: { en: 'Kraków', de: 'Krakau', fr: 'Cracovie' }, osmId: '130934' },
+            lodz: { name: { en: 'Łódź', de: 'Lodsch', fr: 'Łódź' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/POL_wojew%C3%B3dztwo_%C5%82%C3%B3dzkie_flag.svg/320px-POL_wojew%C3%B3dztwo_%C5%82%C3%B3dzkie_flag.svg.png', bounds: [[51.02, 18.20], [52.16, 20.53]], area: '18,219 km²', population: '2.5 million', capital: { en: 'Łódź', de: 'Lodsch', fr: 'Łódź' }, osmId: '130929' },
+            'lower-silesian': { name: { en: 'Lower Silesian', de: 'Niederschlesien', fr: 'Basse-Silésie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/POL_wojew%C3%B3dztwo_dolno%C5%9Bl%C4%85skie_flag.svg/320px-POL_wojew%C3%B3dztwo_dolno%C5%9Bl%C4%85skie_flag.svg.png', bounds: [[50.26, 14.71], [51.77, 17.73]], area: '19,947 km²', population: '2.9 million', capital: { en: 'Wrocław', de: 'Breslau', fr: 'Wrocław' }, osmId: '224457' },
+            lublin: { name: { en: 'Lublin', de: 'Lublin', fr: 'Lublin' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/POL_wojew%C3%B3dztwo_lubelskie_flag.svg/320px-POL_wojew%C3%B3dztwo_lubelskie_flag.svg.png', bounds: [[50.25, 21.78], [51.61, 24.15]], area: '25,122 km²', population: '2.1 million', capital: { en: 'Lublin', de: 'Lublin', fr: 'Lublin' }, osmId: '130922' },
+            lubusz: { name: { en: 'Lubusz', de: 'Lebus', fr: 'Lubusz' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/POL_wojew%C3%B3dztwo_lubuskie_flag.svg/320px-POL_wojew%C3%B3dztwo_lubuskie_flag.svg.png', bounds: [[51.35, 14.12], [53.19, 16.30]], area: '13,988 km²', population: '1.0 million', capital: { en: 'Gorzów Wielkopolski', de: 'Landsberg an der Warthe', fr: 'Gorzów Wielkopolski' }, osmId: '130926' },
+            masovian: { name: { en: 'Masovian', de: 'Masowien', fr: 'Mazovie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/POL_wojew%C3%B3dztwo_mazowieckie_flag.svg/320px-POL_wojew%C3%B3dztwo_mazowieckie_flag.svg.png', bounds: [[51.26, 19.25], [53.48, 23.19]], area: '35,558 km²', population: '5.4 million', capital: { en: 'Warsaw', de: 'Warschau', fr: 'Varsovie' }, osmId: '130919' },
+            opole: { name: { en: 'Opole', de: 'Oppeln', fr: 'Opole' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/POL_wojew%C3%B3dztwo_opolskie_flag.svg/320px-POL_wojew%C3%B3dztwo_opolskie_flag.svg.png', bounds: [[50.01, 17.01], [51.13, 18.86]], area: '9,412 km²', population: '1.0 million', capital: { en: 'Opole', de: 'Oppeln', fr: 'Opole' }, osmId: '224456' },
+            podlaskie: { name: { en: 'Podlaskie', de: 'Podlachien', fr: 'Podlachie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/POL_wojew%C3%B3dztwo_podlaskie_flag.svg/320px-POL_wojew%C3%B3dztwo_podlaskie_flag.svg.png', bounds: [[52.10, 22.17], [54.37, 24.15]], area: '20,187 km²', population: '1.2 million', capital: { en: 'Białystok', de: 'Białystok', fr: 'Białystok' }, osmId: '130923' },
+            pomeranian: { name: { en: 'Pomeranian', de: 'Pommern', fr: 'Poméranie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/POL_wojew%C3%B3dztwo_pomorskie_flag.svg/320px-POL_wojew%C3%B3dztwo_pomorskie_flag.svg.png', bounds: [[53.48, 16.76], [54.84, 19.32]], area: '18,310 km²', population: '2.3 million', capital: { en: 'Gdańsk', de: 'Danzig', fr: 'Gdańsk' }, osmId: '130927' },
+            silesian: { name: { en: 'Silesian', de: 'Schlesien', fr: 'Silésie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/POL_wojew%C3%B3dztwo_%C5%9Bl%C4%85skie_flag.svg/320px-POL_wojew%C3%B3dztwo_%C5%9Bl%C4%85skie_flag.svg.png', bounds: [[49.57, 18.46], [50.89, 19.83]], area: '12,333 km²', population: '4.5 million', capital: { en: 'Katowice', de: 'Kattowitz', fr: 'Katowice' }, osmId: '224460' },
+            subcarpathian: { name: { en: 'Subcarpathian', de: 'Karpatenvorland', fr: 'Subcarpatie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/POL_wojew%C3%B3dztwo_podkarpackie_flag.svg/320px-POL_wojew%C3%B3dztwo_podkarpackie_flag.svg.png', bounds: [[49.37, 21.39], [50.69, 23.09]], area: '17,846 km²', population: '2.1 million', capital: { en: 'Rzeszów', de: 'Rzeszów', fr: 'Rzeszów' }, osmId: '130924' },
+            swietokrzyskie: { name: { en: 'Świętokrzyskie', de: 'Heiligkreuz', fr: 'Sainte-Croix' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/POL_wojew%C3%B3dztwo_%C5%9Bwi%C4%99tokrzyskie_flag.svg/320px-POL_wojew%C3%B3dztwo_%C5%9Bwi%C4%99tokrzyskie_flag.svg.png', bounds: [[50.11, 19.83], [51.27, 21.76]], area: '11,710 km²', population: '1.2 million', capital: { en: 'Kielce', de: 'Kielce', fr: 'Kielce' }, osmId: '130928' },
+            'warmian-masurian': { name: { en: 'Warmian-Masurian', de: 'Ermland-Masuren', fr: 'Varmie-Mazurie' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/POL_wojew%C3%B3dztwo_warmi%C5%84sko-mazurskie_flag.svg/320px-POL_wojew%C3%B3dztwo_warmi%C5%84sko-mazurskie_flag.svg.png', bounds: [[53.17, 19.32], [54.43, 22.56]], area: '24,173 km²', population: '1.4 million', capital: { en: 'Olsztyn', de: 'Allenstein', fr: 'Olsztyn' }, osmId: '130921' },
+            'west-pomeranian': { name: { en: 'West Pomeranian', de: 'Westpommern', fr: 'Poméranie-Occidentale' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/POL_wojew%C3%B3dztwo_zachodniopomorskie_flag.svg/320px-POL_wojew%C3%B3dztwo_zachodniopomorskie_flag.svg.png', bounds: [[52.53, 14.12], [54.14, 17.02]], area: '22,892 km²', population: '1.7 million', capital: { en: 'Szczecin', de: 'Stettin', fr: 'Szczecin' }, osmId: '130919' },
+            
+            // UK Countries
+            england: { name: { en: 'England', de: 'England', fr: 'Angleterre' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/be/Flag_of_England.svg/320px-Flag_of_England.svg.png', bounds: [[49.9, -6.4], [55.8, 1.8]], area: '130,279 km²', population: '56.5 million', capital: { en: 'London', de: 'London', fr: 'Londres' }, osmId: '58447' },
+            scotland: { name: { en: 'Scotland', de: 'Schottland', fr: 'Écosse' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[54.63, -8.65], [60.86, -0.73]], area: '77,933 km²', population: '5.5 million', capital: { en: 'Edinburgh', de: 'Edinburgh', fr: 'Édimbourg' }, osmId: '58446' },
+            wales: { name: { en: 'Wales', de: 'Wales', fr: 'Pays de Galles' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Flag_of_Wales.svg/320px-Flag_of_Wales.svg.png', bounds: [[51.38, -5.30], [53.43, -2.65]], area: '20,779 km²', population: '3.1 million', capital: { en: 'Cardiff', de: 'Cardiff', fr: 'Cardiff' }, osmId: '58437' },
+            'northern-ireland': { name: { en: 'Northern Ireland', de: 'Nordirland', fr: 'Irlande du Nord' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/St_Patrick%27s_Saltire.svg/320px-St_Patrick%27s_Saltire.svg.png', bounds: [[54.02, -8.18], [55.31, -5.43]], area: '14,130 km²', population: '1.9 million', capital: { en: 'Belfast', de: 'Belfast', fr: 'Belfast' }, osmId: '156393' },
+            
+            // Scottish Council Areas (32)
+            'aberdeen-city': { name: { en: 'Aberdeen City', de: 'Aberdeen', fr: 'Aberdeen' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[57.10, -2.25], [57.21, -2.03]], area: '186 km²', population: '0.2 million', capital: { en: 'Aberdeen', de: 'Aberdeen', fr: 'Aberdeen' }, osmId: '1278303' },
+            aberdeenshire: { name: { en: 'Aberdeenshire', de: 'Aberdeenshire', fr: 'Aberdeenshire' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[56.79, -3.67], [57.69, -1.78]], area: '6,313 km²', population: '0.3 million', capital: { en: 'Aberdeen', de: 'Aberdeen', fr: 'Aberdeen' }, osmId: '1278299' },
+            angus: { name: { en: 'Angus', de: 'Angus', fr: 'Angus' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[56.53, -3.26], [56.97, -2.43]], area: '2,182 km²', population: '0.1 million', capital: { en: 'Forfar', de: 'Forfar', fr: 'Forfar' }, osmId: '1278304' },
+            'argyll-bute': { name: { en: 'Argyll and Bute', de: 'Argyll und Bute', fr: 'Argyll et Bute' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.62, -6.42], [56.81, -4.63]], area: '6,909 km²', population: '0.1 million', capital: { en: 'Lochgilphead', de: 'Lochgilphead', fr: 'Lochgilphead' }, osmId: '1278297' },
+            'city-of-edinburgh': { name: { en: 'City of Edinburgh', de: 'Edinburgh', fr: 'Édimbourg' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.90, -3.45], [56.00, -3.13]], area: '264 km²', population: '0.5 million', capital: { en: 'Edinburgh', de: 'Edinburgh', fr: 'Édimbourg' }, osmId: '1278302' },
+            clackmannanshire: { name: { en: 'Clackmannanshire', de: 'Clackmannanshire', fr: 'Clackmannanshire' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[56.06, -3.93], [56.21, -3.70]], area: '159 km²', population: '0.05 million', capital: { en: 'Alloa', de: 'Alloa', fr: 'Alloa' }, osmId: '1278305' },
+            'dumfries-galloway': { name: { en: 'Dumfries and Galloway', de: 'Dumfries und Galloway', fr: 'Dumfries et Galloway' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[54.63, -5.12], [55.42, -2.96]], area: '6,426 km²', population: '0.1 million', capital: { en: 'Dumfries', de: 'Dumfries', fr: 'Dumfries' }, osmId: '1278296' },
+            'dundee-city': { name: { en: 'Dundee City', de: 'Dundee', fr: 'Dundee' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[56.44, -3.08], [56.51, -2.86]], area: '60 km²', population: '0.1 million', capital: { en: 'Dundee', de: 'Dundee', fr: 'Dundee' }, osmId: '1278293' },
+            'east-ayrshire': { name: { en: 'East Ayrshire', de: 'East Ayrshire', fr: 'Ayrshire de l\'Est' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.35, -4.65], [55.73, -3.88]], area: '1,262 km²', population: '0.1 million', capital: { en: 'Kilmarnock', de: 'Kilmarnock', fr: 'Kilmarnock' }, osmId: '1278285' },
+            'east-dunbartonshire': { name: { en: 'East Dunbartonshire', de: 'East Dunbartonshire', fr: 'Dunbartonshire de l\'Est' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.89, -4.36], [56.01, -4.11]], area: '175 km²', population: '0.1 million', capital: { en: 'Kirkintilloch', de: 'Kirkintilloch', fr: 'Kirkintilloch' }, osmId: '1278289' },
+            'east-lothian': { name: { en: 'East Lothian', de: 'East Lothian', fr: 'Lothian de l\'Est' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.87, -3.05], [56.06, -2.64]], area: '679 km²', population: '0.1 million', capital: { en: 'Haddington', de: 'Haddington', fr: 'Haddington' }, osmId: '1278306' },
+            'east-renfrewshire': { name: { en: 'East Renfrewshire', de: 'East Renfrewshire', fr: 'Renfrewshire de l\'Est' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.73, -4.48], [55.82, -4.23]], area: '174 km²', population: '0.1 million', capital: { en: 'Giffnock', de: 'Giffnock', fr: 'Giffnock' }, osmId: '1278288' },
+            falkirk: { name: { en: 'Falkirk', de: 'Falkirk', fr: 'Falkirk' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.90, -3.92], [56.08, -3.54]], area: '297 km²', population: '0.2 million', capital: { en: 'Falkirk', de: 'Falkirk', fr: 'Falkirk' }, osmId: '1278292' },
+            fife: { name: { en: 'Fife', de: 'Fife', fr: 'Fife' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[56.04, -3.59], [56.46, -2.70]], area: '1,325 km²', population: '0.4 million', capital: { en: 'Glenrothes', de: 'Glenrothes', fr: 'Glenrothes' }, osmId: '1278307' },
+            'glasgow-city': { name: { en: 'Glasgow City', de: 'Glasgow', fr: 'Glasgow' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.80, -4.36], [55.92, -4.13]], area: '175 km²', population: '0.6 million', capital: { en: 'Glasgow', de: 'Glasgow', fr: 'Glasgow' }, osmId: '1278291' },
+            highland: { name: { en: 'Highland', de: 'Highland', fr: 'Highland' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[56.49, -6.42], [58.64, -3.05]], area: '25,659 km²', population: '0.2 million', capital: { en: 'Inverness', de: 'Inverness', fr: 'Inverness' }, osmId: '1278294' },
+            inverclyde: { name: { en: 'Inverclyde', de: 'Inverclyde', fr: 'Inverclyde' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.87, -4.93], [55.99, -4.59]], area: '160 km²', population: '0.1 million', capital: { en: 'Greenock', de: 'Greenock', fr: 'Greenock' }, osmId: '1278283' },
+            midlothian: { name: { en: 'Midlothian', de: 'Midlothian', fr: 'Midlothian' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.77, -3.28], [55.93, -2.96]], area: '354 km²', population: '0.1 million', capital: { en: 'Dalkeith', de: 'Dalkeith', fr: 'Dalkeith' }, osmId: '1278301' },
+            moray: { name: { en: 'Moray', de: 'Moray', fr: 'Moray' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[57.30, -3.89], [57.73, -2.70]], area: '2,238 km²', population: '0.1 million', capital: { en: 'Elgin', de: 'Elgin', fr: 'Elgin' }, osmId: '1278298' },
+            'north-ayrshire': { name: { en: 'North Ayrshire', de: 'North Ayrshire', fr: 'Ayrshire du Nord' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.40, -5.14], [55.85, -4.56]], area: '885 km²', population: '0.1 million', capital: { en: 'Irvine', de: 'Irvine', fr: 'Irvine' }, osmId: '1278284' },
+            'north-lanarkshire': { name: { en: 'North Lanarkshire', de: 'North Lanarkshire', fr: 'Lanarkshire du Nord' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.74, -4.17], [56.01, -3.66]], area: '470 km²', population: '0.3 million', capital: { en: 'Motherwell', de: 'Motherwell', fr: 'Motherwell' }, osmId: '1278290' },
+            'orkney-islands': { name: { en: 'Orkney Islands', de: 'Orkney-Inseln', fr: 'Orcades' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[58.72, -3.38], [59.38, -2.34]], area: '990 km²', population: '0.02 million', capital: { en: 'Kirkwall', de: 'Kirkwall', fr: 'Kirkwall' }, osmId: '1995199' },
+            'perth-kinross': { name: { en: 'Perth and Kinross', de: 'Perth und Kinross', fr: 'Perth et Kinross' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[56.19, -4.79], [57.01, -3.13]], area: '5,286 km²', population: '0.2 million', capital: { en: 'Perth', de: 'Perth', fr: 'Perth' }, osmId: '1278308' },
+            renfrewshire: { name: { en: 'Renfrewshire', de: 'Renfrewshire', fr: 'Renfrewshire' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.79, -4.65], [55.89, -4.35]], area: '261 km²', population: '0.2 million', capital: { en: 'Paisley', de: 'Paisley', fr: 'Paisley' }, osmId: '1278287' },
+            'scottish-borders': { name: { en: 'Scottish Borders', de: 'Scottish Borders', fr: 'Frontières écossaises' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.23, -3.51], [55.87, -2.03]], area: '4,732 km²', population: '0.1 million', capital: { en: 'Newtown St Boswells', de: 'Newtown St Boswells', fr: 'Newtown St Boswells' }, osmId: '1278295' },
+            'shetland-islands': { name: { en: 'Shetland Islands', de: 'Shetland-Inseln', fr: 'Shetland' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[59.83, -1.77], [60.86, -0.73]], area: '1,466 km²', population: '0.02 million', capital: { en: 'Lerwick', de: 'Lerwick', fr: 'Lerwick' }, osmId: '1995200' },
+            'south-ayrshire': { name: { en: 'South Ayrshire', de: 'South Ayrshire', fr: 'Ayrshire du Sud' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[54.94, -5.12], [55.49, -4.37]], area: '1,222 km²', population: '0.1 million', capital: { en: 'Ayr', de: 'Ayr', fr: 'Ayr' }, osmId: '1278282' },
+            'south-lanarkshire': { name: { en: 'South Lanarkshire', de: 'South Lanarkshire', fr: 'Lanarkshire du Sud' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.36, -4.30], [55.78, -3.51]], area: '1,772 km²', population: '0.3 million', capital: { en: 'Hamilton', de: 'Hamilton', fr: 'Hamilton' }, osmId: '1278286' },
+            stirling: { name: { en: 'Stirling', de: 'Stirling', fr: 'Stirling' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.98, -4.79], [56.45, -3.75]], area: '2,187 km²', population: '0.1 million', capital: { en: 'Stirling', de: 'Stirling', fr: 'Stirling' }, osmId: '1278309' },
+            'west-dunbartonshire': { name: { en: 'West Dunbartonshire', de: 'West Dunbartonshire', fr: 'Dunbartonshire de l\'Ouest' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.89, -4.66], [56.04, -4.38]], area: '159 km²', population: '0.1 million', capital: { en: 'Dumbarton', de: 'Dumbarton', fr: 'Dumbarton' }, osmId: '1278281' },
+            'west-lothian': { name: { en: 'West Lothian', de: 'West Lothian', fr: 'Lothian de l\'Ouest' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[55.81, -3.76], [56.01, -3.36]], area: '427 km²', population: '0.2 million', capital: { en: 'Livingston', de: 'Livingston', fr: 'Livingston' }, osmId: '1278300' },
+            'western-isles': { name: { en: 'Western Isles', de: 'Äußere Hebriden', fr: 'Hébrides extérieures' }, flag: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png', bounds: [[56.80, -7.60], [58.52, -5.99]], area: '3,071 km²', population: '0.03 million', capital: { en: 'Stornoway', de: 'Stornoway', fr: 'Stornoway' }, osmId: '1995198' },
+            
+            // English Regions
+            'east-england': { name: { en: 'East of England', de: 'Ostengland', fr: 'Est de l\'Angleterre' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/be/Flag_of_England.svg/320px-Flag_of_England.svg.png', bounds: [[51.52, -0.55], [53.03, 1.76]], area: '19,116 km²', population: '6.2 million', capital: { en: 'Cambridge', de: 'Cambridge', fr: 'Cambridge' }, osmId: '2600073' },
+            london: { name: { en: 'London', de: 'London', fr: 'Londres' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/be/Flag_of_England.svg/320px-Flag_of_England.svg.png', bounds: [[51.28, -0.51], [51.69, 0.34]], area: '1,572 km²', population: '9.0 million', capital: { en: 'London', de: 'London', fr: 'Londres' }, osmId: '175342' },
+            'north-west-england': { name: { en: 'North West England', de: 'Nordwestengland', fr: 'Nord-Ouest de l\'Angleterre' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/be/Flag_of_England.svg/320px-Flag_of_England.svg.png', bounds: [[52.90, -3.23], [55.06, -1.98]], area: '14,165 km²', population: '7.3 million', capital: { en: 'Manchester', de: 'Manchester', fr: 'Manchester' }, osmId: '2636146' },
+            'south-east-england': { name: { en: 'South East England', de: 'Südostengland', fr: 'Sud-Est de l\'Angleterre' }, flag: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/be/Flag_of_England.svg/320px-Flag_of_England.svg.png', bounds: [[50.69, -1.79], [52.02, 1.45]], area: '19,096 km²', population: '9.2 million', capital: { en: 'Guildford', de: 'Guildford', fr: 'Guildford' }, osmId: '2635393' }
+        };
+
+        // Update scale bar based on zoom
+        function updateScale() {
+            const zoom = map.getZoom();
+            document.getElementById('zoomLevel').textContent = `${translations[currentLang].zoom} ${zoom}`;
+            
+            const scales = [
+                { zoom: 3, distance: '1000 km' },
+                { zoom: 4, distance: '500 km' },
+                { zoom: 5, distance: '200 km' },
+                { zoom: 6, distance: '100 km' },
+                { zoom: 7, distance: '50 km' },
+                { zoom: 8, distance: '20 km' },
+                { zoom: 9, distance: '10 km' },
+                { zoom: 10, distance: '5 km' },
+                { zoom: 11, distance: '2 km' },
+                { zoom: 12, distance: '1 km' },
+                { zoom: 13, distance: '500 m' },
+                { zoom: 14, distance: '200 m' },
+                { zoom: 15, distance: '100 m' },
+                { zoom: 16, distance: '50 m' },
+                { zoom: 17, distance: '20 m' },
+                { zoom: 18, distance: '10 m' }
+            ];
+            
+            const scale = scales.find(s => s.zoom >= zoom) || scales[scales.length - 1];
+            document.getElementById('scaleText').textContent = scale.distance;
+        }
+
+        // Update metadata panel
+        function updateMetadata(regionKey) {
+            const region = regionMetadata[regionKey] || regionData[regionKey];
+            if (!region) return;
+
+            const metadata = document.getElementById('metadataContainer');
+            let html = '';
+
+            if (region.flag) {
+                html += `<img src="${region.flag}" class="region-flag-large" alt="Flag">`;
+            }
+
+            html += `<div class="metadata-title">${region.name[currentLang]}</div>`;
+            
+            if (region.area) {
+                html += `
+                    <div class="metadata-row">
+                        <span class="metadata-label">${translations[currentLang].area}</span>
+                        <span class="metadata-value">${region.area}</span>
+                    </div>
+                `;
+            }
+            
+            if (region.population) {
+                html += `
+                    <div class="metadata-row">
+                        <span class="metadata-label">${translations[currentLang].population}</span>
+                        <span class="metadata-value">${region.population}</span>
+                    </div>
+                `;
+            }
+            
+            if (region.capital) {
+                html += `
+                    <div class="metadata-row">
+                        <span class="metadata-label">${translations[currentLang].capital}</span>
+                        <span class="metadata-value">${region.capital[currentLang]}</span>
+                    </div>
+                `;
+            }
+
+            // Only show OSM link if not EU level and osmId exists
+            if (region.osmId && regionKey !== 'eu') {
+                const osmUrl = `https://osm.org/relation/${region.osmId}`;
+                html += `
+                    <div class="metadata-row" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                        <a href="${osmUrl}" target="_blank" class="osm-link">${osmUrl}</a>
+                    </div>
+                `;
+            }
+
+            metadata.innerHTML = html;
+        }
+
+        // Update flag breadcrumb
+        function updateBreadcrumb() {
+            const breadcrumb = document.getElementById('flagBreadcrumb');
+            breadcrumb.innerHTML = '';
+
+            navigationStack.forEach((regionKey, index) => {
+                const region = regionMetadata[regionKey] || regionData[regionKey];
+                if (!region) return;
+
+                if (index > 0) {
+                    const separator = document.createElement('span');
+                    separator.className = 'flag-separator';
+                    separator.textContent = '›';
+                    breadcrumb.appendChild(separator);
+                }
+
+                const flagImg = document.createElement('img');
+                flagImg.src = region.flag;
+                flagImg.className = 'flag-icon';
+                flagImg.alt = region.name[currentLang];
+                flagImg.title = region.name[currentLang];
+                flagImg.onclick = () => navigateToLevel(index);
+                breadcrumb.appendChild(flagImg);
+            });
+        }
+
+        // Navigate to a specific level
+        function navigateToLevel(level) {
+            // Remove current layer before navigating back
+            if (currentLayer) {
+                map.removeLayer(currentLayer);
+                currentLayer = null;
+            }
+            
+            navigationStack = navigationStack.slice(0, level + 1);
+            const regionKey = navigationStack[level];
+            showRegion(regionKey);
+        }
+
+        // Show region with border and zoom
+        async function showRegion(regionKey) {
+            const region = regionMetadata[regionKey] || regionData[regionKey];
+            if (!region) return;
+
+            // Remove previous border
+            if (currentLayer) {
+                map.removeLayer(currentLayer);
+            }
+
+            // Fit bounds
+            if (region.bounds) {
+                map.fitBounds(region.bounds, { padding: [50, 50] });
+            }
+
+            // For EU level, use simple rectangle
+            if (regionKey === 'eu') {
+                currentLayer = L.rectangle(region.bounds, {
+                    color: EU_BLUE,
+                    weight: 3,
+                    fill: false,
+                    opacity: 0.8
+                }).addTo(map);
+            } 
+            // For all other levels, fetch and draw actual boundary from OSM
+            else if (region.osmId) {
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/lookup?osm_ids=R${region.osmId}&format=geojson&polygon_geojson=1`);
+                    const data = await response.json();
+                    
+                    if (data.features && data.features.length > 0) {
+                        currentLayer = L.geoJSON(data.features[0].geometry, {
+                            style: {
+                                color: EU_BLUE,
+                                weight: 3,
+                                fill: false,
+                                opacity: 0.8
+                            }
+                        }).addTo(map);
+                        
+                        // Fit to actual geometry bounds
+                        map.fitBounds(currentLayer.getBounds(), { padding: [50, 50] });
+                    }
+                } catch (error) {
+                    console.error('Error fetching boundary:', error);
+                    // Fallback to simple rectangle if fetch fails
+                    if (region.bounds) {
+                        currentLayer = L.rectangle(region.bounds, {
+                            color: EU_BLUE,
+                            weight: 3,
+                            fill: false,
+                            opacity: 0.8
+                        }).addTo(map);
+                    }
+                }
+            } else if (region.bounds) {
+                // Fallback to rectangle for regions without OSM ID
+                currentLayer = L.rectangle(region.bounds, {
+                    color: EU_BLUE,
+                    weight: 3,
+                    fill: false,
+                    opacity: 0.8
+                }).addTo(map);
+            }
+
+            // Update metadata
+            updateMetadata(regionKey);
+
+            // Update dropdown with children
+            await updateRegionDropdown(regionKey, region);
+
+            updateBreadcrumb();
+        }
+
+        // New function to update the region dropdown with dynamic loading
+        async function updateRegionDropdown(regionKey, region) {
+            const searchInput = document.getElementById('regionSearch');
+            const dropdown = document.getElementById('regionDropdown');
+            const noSubdivisions = document.getElementById('noSubdivisions');
+            
+            // Clear current state
+            searchInput.value = '';
+            dropdown.innerHTML = '';
+            dropdown.classList.remove('show');
+            currentRegions = [];
+            selectedRegionKey = null;
+            
+            // Get children - either from region.children or from getRegionChildren
+            let children = region.children || await getRegionChildren(region.osmId, regionKey);
+            
+            if (children && children.length > 0) {
+                // Check if we need to load from API (for Bundesländer, etc.)
+                const needsApiLoad = shouldLoadFromAPI(regionKey);
+                
+                if (needsApiLoad) {
+                    // Show loading state
+                    searchInput.style.display = 'block';
+                    noSubdivisions.style.display = 'none';
+                    searchInput.placeholder = 'Loading subdivisions...';
+                    searchInput.disabled = true;
+                    
+                    // Load from Overpass API
+                    const apiChildren = await loadSubdivisionsFromAPI(region.osmId, regionKey);
+                    
+                    if (apiChildren && apiChildren.length > 0) {
+                        currentRegions = apiChildren;
+                        searchInput.placeholder = `Search ${apiChildren.length} subdivisions...`;
+                        searchInput.disabled = false;
+                    } else {
+                        // Fallback to local children if API fails
+                        currentRegions = children.map(childKey => {
+                            const childRegion = regionMetadata[childKey] || regionData[childKey];
+                            return childRegion ? {
+                                key: childKey,
+                                name: childRegion.name[currentLang]
+                            } : null;
+                        }).filter(Boolean);
+                        searchInput.placeholder = `Search ${currentRegions.length} regions...`;
+                        searchInput.disabled = false;
+                    }
+                } else {
+                    // Use local data
+                    currentRegions = children.map(childKey => {
+                        const childRegion = regionMetadata[childKey] || regionData[childKey];
+                        return childRegion ? {
+                            key: childKey,
+                            name: childRegion.name[currentLang]
+                        } : null;
+                    }).filter(Boolean);
+                    
+                    searchInput.style.display = 'block';
+                    noSubdivisions.style.display = 'none';
+                    searchInput.placeholder = `Search ${currentRegions.length} regions...`;
+                    searchInput.disabled = false;
+                }
+            } else {
+                // No subdivisions available
+                searchInput.style.display = 'none';
+                noSubdivisions.style.display = 'block';
+                noSubdivisions.textContent = translations[currentLang].noSubdivisions || 'No subdivision data available';
+            }
+        }
+
+        // Determine if we should load from API
+        function shouldLoadFromAPI(regionKey) {
+            // Load from API for German Bundesländer (to get Gemeinden)
+            const apiRegions = [
+                'baden-wuerttemberg', 'bavaria', 'berlin', 'brandenburg', 'bremen',
+                'hamburg', 'hesse', 'lower-saxony', 'mecklenburg-vorpommern',
+                'north-rhine-westphalia', 'rhineland-palatinate', 'saarland',
+                'saxony', 'saxony-anhalt', 'schleswig-holstein', 'thuringia'
+            ];
+            
+            return apiRegions.includes(regionKey);
+        }
+
+        // Load subdivisions from Overpass API
+        async function loadSubdivisionsFromAPI(osmId, regionKey) {
+            try {
+                // Determine admin level based on region
+                const adminLevel = getAdminLevel(regionKey);
+                
+                // Overpass query to get municipalities/communes
+                const query = `
+                [out:json][timeout:25];
+                area(id:${3600000000 + parseInt(osmId)})->.searchArea;
+                (
+                  rel(area.searchArea)["admin_level"="${adminLevel}"]["boundary"="administrative"];
+                );
+                out tags;
+                `;
+                
+                const overpassUrl = 'https://overpass-api.de/api/interpreter';
+                const response = await fetch(overpassUrl, {
+                    method: 'POST',
+                    body: query
+                });
+                
+                const data = await response.json();
+                
+                if (data.elements && data.elements.length > 0) {
+                    return data.elements.map(element => ({
+                        key: `osm-${element.id}`,
+                        name: element.tags.name || element.tags['name:de'] || element.tags['name:en'] || `Unknown`,
+                        osmId: element.id,
+                        type: element.tags.type || 'municipality'
+                    })).sort((a, b) => a.name.localeCompare(b.name));
+                }
+                
+                return [];
+            } catch (error) {
+                console.error('Error loading from Overpass API:', error);
+                return [];
+            }
+        }
+
+        // Get appropriate admin level for API query
+        function getAdminLevel(regionKey) {
+            // German Bundesländer: level 8 = Gemeinden
+            const germanStates = [
+                'baden-wuerttemberg', 'bavaria', 'berlin', 'brandenburg', 'bremen',
+                'hamburg', 'hesse', 'lower-saxony', 'mecklenburg-vorpommern',
+                'north-rhine-westphalia', 'rhineland-palatinate', 'saarland',
+                'saxony', 'saxony-anhalt', 'schleswig-holstein', 'thuringia'
+            ];
+            
+            if (germanStates.includes(regionKey)) {
+                return '8'; // Gemeinden
+            }
+            
+            // Add more mappings as needed
+            return '8'; // Default
+        }
+
+        // Store current regions for search
+        let currentRegions = [];
+        let selectedRegionKey = null;
+
+        // Search input handler
+        document.getElementById('regionSearch').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const dropdown = document.getElementById('regionDropdown');
+            
+            if (!searchTerm) {
+                dropdown.classList.remove('show');
+                return;
+            }
+            
+            // Filter regions
+            const filtered = currentRegions.filter(r => 
+                r.name.toLowerCase().includes(searchTerm)
+            );
+            
+            // Display filtered results
+            dropdown.innerHTML = '';
+            
+            if (filtered.length > 0) {
+                filtered.slice(0, 50).forEach(region => { // Limit to 50 results
+                    const option = document.createElement('div');
+                    option.className = 'region-option';
+                    option.textContent = region.name;
+                    option.onclick = () => selectRegion(region);
+                    dropdown.appendChild(option);
+                });
+                dropdown.classList.add('show');
+            } else {
+                dropdown.innerHTML = '<div class="region-option" style="color: #9ca3af;">No results found</div>';
+                dropdown.classList.add('show');
+            }
+        });
+
+        // Click outside to close dropdown
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('regionDropdown');
+            const searchInput = document.getElementById('regionSearch');
+            
+            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Select region from dropdown
+        function selectRegion(region) {
+            selectedRegionKey = region.key;
+            document.getElementById('regionSearch').value = region.name;
+            document.getElementById('regionDropdown').classList.remove('show');
+        }
+
+        // Go button handler - updated for dynamic regions
+        document.getElementById('goButton').addEventListener('click', async () => {
+            if (selectedRegionKey) {
+                // Check if it's an OSM-loaded region
+                if (selectedRegionKey.startsWith('osm-')) {
+                    const selectedRegion = currentRegions.find(r => r.key === selectedRegionKey);
+                    if (selectedRegion && selectedRegion.osmId) {
+                        // Show this OSM region
+                        await showOSMRegion(selectedRegion);
+                    }
+                } else {
+                    // Local region
+                    if (regionMetadata[selectedRegionKey] || regionData[selectedRegionKey]) {
+                        navigationStack.push(selectedRegionKey);
+                        showRegion(selectedRegionKey);
+                    }
+                }
+            }
+        });
+
+        // Show OSM-loaded region (Gemeinde, etc.)
+        async function showOSMRegion(region) {
+            try {
+                // Fetch boundary
+                const response = await fetch(`https://nominatim.openstreetmap.org/lookup?osm_ids=R${region.osmId}&format=geojson&polygon_geojson=1`);
+                const data = await response.json();
+                
+                if (data.features && data.features.length > 0) {
+                    // Remove previous layer
+                    if (currentLayer) {
+                        map.removeLayer(currentLayer);
+                    }
+                    
+                    // Draw boundary
+                    currentLayer = L.geoJSON(data.features[0].geometry, {
+                        style: {
+                            color: EU_BLUE,
+                            weight: 3,
+                            fill: false,
+                            opacity: 0.8
+                        }
+                    }).addTo(map);
+                    
+                    // Fit to bounds
+                    map.fitBounds(currentLayer.getBounds(), { padding: [50, 50] });
+                    
+                    // Update metadata with OSM region info
+                    updateOSMMetadata(region, data.features[0]);
+                    
+                    // Add to navigation stack (as OSM region)
+                    navigationStack.push(region.key);
+                    updateBreadcrumb();
+                    
+                    // No further subdivisions for Gemeinden
+                    document.getElementById('regionSearch').style.display = 'none';
+                    document.getElementById('noSubdivisions').style.display = 'block';
+                    document.getElementById('noSubdivisions').textContent = 'No further subdivisions';
+                }
+            } catch (error) {
+                console.error('Error showing OSM region:', error);
+            }
+        }
+
+        // Update metadata for OSM-loaded regions
+        function updateOSMMetadata(region, geoFeature) {
+            const metadata = document.getElementById('metadataContainer');
+            let html = `<div class="metadata-title">${region.name}</div>`;
+            
+            if (region.type) {
+                html += `
+                    <div class="metadata-row">
+                        <span class="metadata-label">Type:</span>
+                        <span class="metadata-value">${region.type}</span>
+                    </div>
+                `;
+            }
+            
+            if (region.osmId) {
+                const osmUrl = `https://osm.org/relation/${region.osmId}`;
+                html += `
+                    <div class="metadata-row" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                        <a href="${osmUrl}" target="_blank" class="osm-link">${osmUrl}</a>
+                    </div>
+                `;
+            }
+
+            metadata.innerHTML = html;
+        }
+
+        // Language switcher
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLang = btn.dataset.lang;
+                
+                // Update UI text
+                document.getElementById('searchInput').placeholder = translations[currentLang].searchPlaceholder;
+                document.querySelector('.go-button').textContent = translations[currentLang].goButton;
+                
+                // Refresh current view
+                if (navigationStack.length > 0) {
+                    showRegion(navigationStack[navigationStack.length - 1]);
+                } else {
+                    updateMetadata('eu');
+                }
+                
+                updateScale();
+            });
+        });
+
+        // Map events
+        map.on('zoomend', updateScale);
+        map.on('moveend', updateScale);
+
+        // Initialize
+        navigationStack = ['eu'];
+        showRegion('eu');
+        updateScale();
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value;
+                if (query.trim()) {
+                    try {
+                        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+                        const results = await response.json();
+                        if (results.length > 0) {
+                            const result = results[0];
+                            map.setView([result.lat, result.lon], 13);
+                        }
+                    } catch (error) {
+                        console.error('Search error:', error);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
